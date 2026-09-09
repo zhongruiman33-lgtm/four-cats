@@ -45,6 +45,19 @@
   .cats > button { flex-shrink: 0; }
   @media (max-width: 1150px) { .cats { display: grid; grid-template-columns: repeat(2, 260px); gap: 0 24px; } }
   @media (max-width: 560px) { .cats { grid-template-columns: 260px; gap: 0; } }
+
+  .cat-label { display: block; position: absolute; top: 276px; width: 100%; color: #9a8c7b; font: 10px/1.5 Georgia, serif; letter-spacing: .15em; pointer-events: none; }
+  button > svg { position: absolute; inset: 0; transform-origin: 50% 76%; }
+  .belly-pose > g { transform: rotate(-16deg); transform-origin: 130px 178px; }
+  button > .belly-pose { opacity: 0; pointer-events: none; }
+  button[data-rolling="true"] .cat { animation-play-state: paused; }
+  .belly-paw { transform-box: fill-box; transform-origin: center; }
+  .belly-tail { transform-origin: 167px 196px; }
+  [data-pose="belly"] .belly-paw { animation: paw-wiggle var(--wiggle-speed, 1.2s) ease-in-out infinite alternate; }
+  [data-pose="belly"] .belly-tail { animation: tail-wiggle 1.5s ease-in-out infinite alternate; }
+  @keyframes paw-wiggle { to { transform: rotate(var(--wiggle, 8deg)) translateY(-2px); } }
+  @keyframes tail-wiggle { to { transform: rotate(var(--wiggle, 8deg)); } }
+  @media (prefers-reduced-motion: reduce) { .belly-paw, .belly-tail { animation: none !important; } }
 </style>
 <main class="cats" aria-label="Four cats">
 <!-- Cat 1: locked original artwork. -->
@@ -118,7 +131,22 @@
     </g>
     <text class="zzz" x="188" y="84">zzz</text>
     <path class="heart" d="M193 74 C190 71 180 65 184 59 C187 55 191 57 193 60 C195 57 200 55 203 59 C207 65 196 72 193 74Z"/>
-  </svg>
+  </svg><svg class="belly-pose" viewBox="0 0 260 290" aria-hidden="true">
+<defs><linearGradient id="belly-fur-1" x2=".8" y2="1"><stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/></linearGradient></defs>
+<ellipse cx="130" cy="247" rx="74" ry="7" fill="#9d8c76" opacity=".13"/>
+<g fill="url(#belly-fur-1)" stroke="#826d53" stroke-width="1.2">
+<g class="belly-tail"><path d="M164 197 Q207 226 214 192 Q215 181 205 184 Q203 211 167 184Z"/><path d="M177 191 l-5 10 M191 197 l-3 11 M206 194 l7 3" fill="none" stroke="#514c3d" stroke-width="4"/></g>
+<ellipse cx="130" cy="177" rx="44" ry="59"/>
+<path d="M89 104 L87 76 Q88 70 94 75 L111 88 Q130 81 149 88 L165 75 Q173 69 173 80 L172 106 Q185 137 131 144 Q79 138 89 104Z"/>
+<path d="M99 139 Q110 148 104 183 L92 207 Q79 175 99 139Z" fill="#77634d"/><path d="M150 134 Q183 153 167 194 L150 181Z" fill="#ba844e"/><path d="M88 96 Q97 72 125 82 L121 119 L94 122Z" fill="#928369"/><path d="M138 82 Q163 81 172 110 L143 122Z" fill="#d39b56"/><path d="M119 152 Q130 159 141 151 Q152 175 142 199 Q130 215 115 199 Q109 177 119 152Z" fill="#f7efdf"/><g fill="none" stroke="#514c3d" stroke-width="4" stroke-linecap="round"><path d="M90 152 l14 6 M86 172 l15 4 M91 198 l12 -3 M161 151 l13 -6 M164 173 l14 -4 M158 197 l15 4 M107 86 l9 10 M128 81 v12 M149 86 l-9 10 M91 109 l12 5 M157 110 l12 -5"/></g>
+<path d="M92 83 L103 92 L93 99Z M167 83 L155 93 L168 99Z" fill="#d2b1a3" stroke="none"/>
+<path d="M112 121 Q122 117 130 123 Q143 118 150 123 Q148 138 131 139 Q114 137 112 121Z" fill="#fffaf0" stroke="none"/><g fill="none" stroke="#645b52" stroke-width="2" stroke-linecap="round"><path d="M103 115 Q109 108 115 115 M145 115 Q151 108 157 115"/></g>
+<path d="M125 123 Q130 120 135 123 L130 127Z" fill="#b7816b" stroke="none"/><path d="M130 127 v3 q-5 5 -9 0 M130 130 q5 5 9 0" fill="none" stroke="#a19387"/>
+<g class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#514c3d" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#514c3d" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+</g></svg><span class="cat-label" aria-hidden="true">CAT_1</span>
 </button>
 <!-- Cat 2: replace only this button’s SVG to change the second cat. -->
 <button id="cat-2" aria-label="White cat. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -167,7 +195,22 @@
     </g>
     <text class="zzz" x="188" y="84">zzz</text>
     <path class="heart" d="M193 74 C190 71 180 65 184 59 C187 55 191 57 193 60 C195 57 200 55 203 59 C207 65 196 72 193 74Z"/>
-  </svg>
+  </svg><svg class="belly-pose" viewBox="0 0 260 290" aria-hidden="true">
+<defs><linearGradient id="belly-fur-2" x2=".8" y2="1"><stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/></linearGradient></defs>
+<ellipse cx="130" cy="247" rx="74" ry="7" fill="#9d8c76" opacity=".13"/>
+<g fill="url(#belly-fur-2)" stroke="#e3ddd4" stroke-width="1.2">
+<path class="belly-tail" d="M164 197 Q207 226 214 192 Q215 181 205 184 Q203 211 167 184Z"/>
+<ellipse cx="130" cy="177" rx="44" ry="59"/>
+<path d="M89 104 L87 76 Q88 70 94 75 L111 88 Q130 81 149 88 L165 75 Q173 69 173 80 L172 106 Q185 137 131 144 Q79 138 89 104Z"/>
+<ellipse cx="130" cy="178" rx="24" ry="33" fill="#fffaf0"/>
+<path d="M92 83 L103 92 L93 99Z M167 83 L155 93 L168 99Z" fill="#d2b1a3" stroke="none"/>
+<path d="M112 121 Q122 117 130 123 Q143 118 150 123 Q148 138 131 139 Q114 137 112 121Z" fill="#fffaf0" stroke="none"/><g fill="none" stroke="#645b52" stroke-width="2" stroke-linecap="round"><path d="M103 115 Q109 108 115 115 M145 115 Q151 108 157 115"/></g>
+<path d="M125 123 Q130 120 135 123 L130 127Z" fill="#b7816b" stroke="none"/><path d="M130 127 v3 q-5 5 -9 0 M130 130 q5 5 9 0" fill="none" stroke="#a19387"/>
+<g class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+</g></svg><span class="cat-label" aria-hidden="true">CAT_2</span>
 </button>
 <!-- Cat 3: independent grey-brown tabby artwork. -->
 <button id="cat-3" aria-label="Grey-brown tabby cat. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -235,7 +278,22 @@
     </g>
     <text class="zzz" x="188" y="84">zzz</text>
     <path class="heart" d="M193 74 C190 71 180 65 184 59 C187 55 191 57 193 60 C195 57 200 55 203 59 C207 65 196 72 193 74Z"/>
-  </svg>
+  </svg><svg class="belly-pose" viewBox="0 0 260 290" aria-hidden="true">
+<defs><linearGradient id="belly-fur-3" x2=".8" y2="1"><stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/></linearGradient></defs>
+<ellipse cx="130" cy="247" rx="74" ry="7" fill="#9d8c76" opacity=".13"/>
+<g fill="url(#belly-fur-3)" stroke="#82715a" stroke-width="1.2">
+<g class="belly-tail"><path d="M164 197 Q207 226 214 192 Q215 181 205 184 Q203 211 167 184Z"/><path d="M177 191 l-5 10 M191 197 l-3 11 M206 194 l7 3" fill="none" stroke="#494033" stroke-width="4"/></g>
+<ellipse cx="130" cy="177" rx="44" ry="59"/>
+<path d="M89 104 L87 76 Q88 70 94 75 L111 88 Q130 81 149 88 L165 75 Q173 69 173 80 L172 106 Q185 137 131 144 Q79 138 89 104Z"/>
+<ellipse cx="130" cy="178" rx="23" ry="33" fill="#b7a17d"/><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M90 152 l14 6 M86 172 l15 4 M91 198 l12 -3 M161 151 l13 -6 M164 173 l14 -4 M158 197 l15 4 M107 86 l9 10 M128 81 v12 M149 86 l-9 10 M91 109 l12 5 M157 110 l12 -5"/></g>
+<path d="M92 83 L103 92 L93 99Z M167 83 L155 93 L168 99Z" fill="#d2b1a3" stroke="none"/>
+<path d="M112 121 Q122 117 130 123 Q143 118 150 123 Q148 138 131 139 Q114 137 112 121Z" fill="#ded0b4" stroke="none"/><g fill="none" stroke="#645b52" stroke-width="2" stroke-linecap="round"><path d="M103 115 Q109 108 115 115 M145 115 Q151 108 157 115"/></g>
+<path d="M125 123 Q130 120 135 123 L130 127Z" fill="#b7816b" stroke="none"/><path d="M130 127 v3 q-5 5 -9 0 M130 130 q5 5 9 0" fill="none" stroke="#a19387"/>
+<g class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#494033" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#494033" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+</g></svg><span class="cat-label" aria-hidden="true">CAT_3</span>
 </button>
 <!-- Cat 4: independent dark tabby artwork. -->
 <button id="cat-4" aria-label="Dark grey-brown tabby cat with a white chest spot. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -304,7 +362,22 @@
     </g>
     <text class="zzz" x="188" y="84">zzz</text>
     <path class="heart" d="M193 74 C190 71 180 65 184 59 C187 55 191 57 193 60 C195 57 200 55 203 59 C207 65 196 72 193 74Z"/>
-  </svg>
+  </svg><svg class="belly-pose" viewBox="0 0 260 290" aria-hidden="true">
+<defs><linearGradient id="belly-fur-4" x2=".8" y2="1"><stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/></linearGradient></defs>
+<ellipse cx="130" cy="247" rx="74" ry="7" fill="#9d8c76" opacity=".13"/>
+<g fill="url(#belly-fur-4)" stroke="#625b4f" stroke-width="1.2">
+<g class="belly-tail"><path d="M164 197 Q207 226 214 192 Q215 181 205 184 Q203 211 167 184Z"/><path d="M177 191 l-5 10 M191 197 l-3 11 M206 194 l7 3" fill="none" stroke="#484439" stroke-width="4"/></g>
+<ellipse cx="130" cy="177" rx="44" ry="59"/>
+<path d="M89 104 L87 76 Q88 70 94 75 L111 88 Q130 81 149 88 L165 75 Q173 69 173 80 L172 106 Q185 137 131 144 Q79 138 89 104Z"/>
+<path d="M125 170 L133 168 Q140 182 138 199 Q129 211 121 199Z" fill="#f7efdf"/><path d="M124 138 Q131 134 138 139 L133 149 L126 148Z" fill="#f7efdf"/><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M90 152 l14 6 M86 172 l15 4 M91 198 l12 -3 M161 151 l13 -6 M164 173 l14 -4 M158 197 l15 4 M107 86 l9 10 M128 81 v12 M149 86 l-9 10 M91 109 l12 5 M157 110 l12 -5"/></g>
+<path d="M92 83 L103 92 L93 99Z M167 83 L155 93 L168 99Z" fill="#d2b1a3" stroke="none"/>
+<path d="M112 121 Q122 117 130 123 Q143 118 150 123 Q148 138 131 139 Q114 137 112 121Z" fill="#bca98a" stroke="none"/><g fill="none" stroke="#645b52" stroke-width="2" stroke-linecap="round"><path d="M103 115 Q109 108 115 115 M145 115 Q151 108 157 115"/></g>
+<path d="M125 123 Q130 120 135 123 L130 127Z" fill="#b7816b" stroke="none"/><path d="M130 127 v3 q-5 5 -9 0 M130 130 q5 5 9 0" fill="none" stroke="#a19387"/>
+<g class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#484439" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#484439" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+</g></svg><span class="cat-label" aria-hidden="true">CAT_4</span>
 </button>
 </main>
 <script>
@@ -316,6 +389,14 @@
     'cat-3': { role: 'curious', blink: 2400, sleep: 16000, eye: 3.4, ear: 2.7, tilt: 5, near: 210, startle: 0, bounce: .035, speed: 420, response: 180, curiosity: .8, breathe: 3.8 },
     'cat-4': { role: 'bold', blink: 3100, sleep: 20000, eye: 3.6, ear: 3, tilt: 5.5, near: 230, startle: 0, bounce: .045, speed: 360, response: 90, curiosity: .9, breathe: 3.6 }
   };
+  // Edit these four names here. Trust is session-only; all probabilities are 0–1.
+  const catConfig = {
+    cat: { name: 'CAT_1', trust: .35, boldness: .4, playfulness: .45, bellyRollChance: .42, interactionCount: 0 },
+    'cat-2': { name: 'CAT_2', trust: .08, boldness: .12, playfulness: .25, bellyRollChance: .15, interactionCount: 0 },
+    'cat-3': { name: 'CAT_3', trust: .55, boldness: .7, playfulness: .8, bellyRollChance: .7, interactionCount: 0 },
+    'cat-4': { name: 'CAT_4', trust: .75, boldness: 1, playfulness: 1, bellyRollChance: .94, interactionCount: 0 }
+  };
+  const rollSettings = { holdMs: 1100, clicks: 3, clickWindowMs: 2400, maxMovePx: 12, cooldownMs: 6500, stayMs: 3200 };
   const companions = [];
   let lastNotice = -Infinity;
   function notify(source, kind) {
@@ -330,6 +411,14 @@
   // Each cat owns its expression, timers, and animation instances.
   function initCat(cat) {
   const cfg = personalities[cat.id];
+  const character = catConfig[cat.id];
+  cat.querySelector('.cat-label').textContent = character.name;
+  cat.setAttribute('aria-label', `${character.name}. ${cat.getAttribute('aria-label')} Hold or gently click three times to invite a belly roll.`);
+  const sitting = cat.querySelector('svg');
+  const belly = cat.querySelector('.belly-pose');
+  let rolling = false, rollCooldown = 0, gentleClicks = [], gesture = null, pointerSample = null, lastLean = -Infinity;
+  cat.style.setProperty('--wiggle', `${3 + character.playfulness * 12}deg`);
+  cat.style.setProperty('--wiggle-speed', `${1.8 - character.playfulness * .8}s`);
   const body = cat.querySelector('.cat');
   body.style.animationDuration = `${cfg.breathe}s`;
   const pupils = cat.querySelector('.pupils');
@@ -347,9 +436,9 @@
     bouncing?.cancel();
     bouncing = bounce.animate([{ transform: 'scale(1)' }, { transform: `scale(${1+amount}, ${1-amount})`, offset: .25 }, { transform: `scale(${1-amount*.6}, ${1+amount})`, offset: .6 }, { transform: 'scale(1)' }], { duration: cfg.speed, easing: 'ease-in-out' });
   }
-  companions.push({ cat, cfg, available: () => state === 'awake' && !pressing, notice(x, kind) {
+  companions.push({ cat, cfg, available: () => !rolling && state === 'awake' && !pressing, notice(x, kind) {
     later('notice', () => {
-      if (state !== 'awake' || pressing) return;
+      if (rolling || state !== 'awake' || pressing) return;
       const direction = Math.sign(x - (cat.getBoundingClientRect().left + 130));
       lookingUntil = Date.now() + 850;
       pupils.style.transform = `translate(${direction * cfg.eye}px, 0px)`;
@@ -377,6 +466,7 @@
     }
   }
   function activity() {
+    if (rolling) return;
     if (state === 'asleep' || state === 'yawning') setState('awake');
     later('yawn', () => {
       if (pressing) return;
@@ -390,7 +480,7 @@
     insides.setAttribute('d', `M${81+dx} ${69+dy} L98 84 L80 94Z M${178+dx} ${69-dy} L161 84 L180 94Z`);
   }
   function doBlink() {
-    if ((state === 'awake' || state === 'surprised') && !reducedMotion.matches) {
+    if (!rolling && (state === 'awake' || state === 'surprised') && !reducedMotion.matches) {
       blinking?.cancel();
       blinking = blink.animate([
         { transform: 'scaleY(1)' },
@@ -403,11 +493,23 @@
   cat.addEventListener('mouseenter', () => { hovered = true; activity(); doBlink(); });
   cat.addEventListener('mouseleave', () => { hovered = false; });
   function trackPointer(event) {
+    if (gesture && gesture.id === event.pointerId && Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > rollSettings.maxMovePx) {
+      gesture = null; suppressClick = true; clearTimeout(timers.rollHold); release();
+    }
+    if (rolling) return;
+    if (event.pointerType === 'touch' && !gesture) return;
     activity();
     const box = cat.getBoundingClientRect();
     const x = event.clientX - (box.left + box.width / 2);
     const y = event.clientY - (box.top + box.height * .43);
     const distance = Math.hypot(x, y) || 1;
+    const now = performance.now();
+    const fastApproach = pointerSample && distance < cfg.near && distance < pointerSample.distance && Math.hypot(event.clientX - pointerSample.x, event.clientY - pointerSample.y) / Math.max(1, now - pointerSample.time) > 1.2;
+    pointerSample = { x: event.clientX, y: event.clientY, time: now, distance };
+    if (cfg.role === 'timid' && fastApproach && now - lastLean > 3500) {
+      lastLean = now;
+      sitting.animate([{ transform: 'rotate(0)' }, { transform: `rotate(${-Math.sign(x) * 7}deg)`, offset: .4 }, { transform: 'rotate(0)' }], { duration: reducedMotion.matches ? 1 : 650 });
+    }
     const amount = Math.min(distance / 65, 1);
     cat.style.setProperty('--tilt', `${distance < cfg.near ? x / cfg.near * cfg.tilt : 0}deg`);
     if (cfg.role === 'timid' && state === 'awake' && distance < cfg.near && !reducedMotion.matches) cat.style.setProperty('--tilt', `${-x / cfg.near * cfg.tilt}deg`);
@@ -428,21 +530,21 @@
   }
   let touchInput = false, lastTap = 0, tapStart = null;
   cat.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || !event.isPrimary) return;
+    if (event.button !== 0 || !event.isPrimary || rolling) return;
     touchInput = event.pointerType === 'touch';
     tapStart = touchInput ? { x: event.clientX, y: event.clientY } : null;
     suppressClick = false;
+    const wasSleeping = state === 'asleep' || state === 'yawning';
     activity();
+    gesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
     if (touchInput) { hovered = true; trackPointer(event); doBlink(); }
+    if (!wasSleeping) later('rollHold', () => { if (gesture) { suppressClick = true; inviteRoll(); } }, rollSettings.holdMs);
     if (!overHead(event)) return;
     pressing = true;
-    later('pet', () => {
-      suppressClick = true;
-      bouncing?.cancel();
-      setState('happy');
-    }, 450);
+    later('pet', () => { suppressClick = true; bouncing?.cancel(); setState('happy'); }, 450);
   });
   function release() {
+    gesture = null; clearTimeout(timers.rollHold);
     if (!pressing) return;
     pressing = false;
     clearTimeout(timers.pet);
@@ -463,7 +565,13 @@
   window.addEventListener('blur', release);
   cat.addEventListener('contextmenu', event => event.preventDefault());
   cat.addEventListener('click', () => {
-    if (suppressClick) { lastTap = 0; return; }
+    if (rolling || suppressClick) { lastTap = 0; return; }
+    const wasSleeping = state === 'asleep' || state === 'yawning';
+    if (!wasSleeping) {
+      character.trust = Math.min(1, character.trust + (cfg.role === 'timid' ? .015 : .005));
+      gentleClicks = gentleClicks.filter(t => Date.now() - t < rollSettings.clickWindowMs);
+      gentleClicks.push(Date.now());
+    }
     if (touchInput) {
       const now = Date.now();
       if (lastTap && now - lastTap < 350) { lastTap = 0; affection(); return; }
@@ -473,11 +581,15 @@
     setState(cfg.role === 'bold' || cfg.role === 'curious' ? 'happy' : 'surprised');
     motion();
     notify(cat, 'click');
+    if (!wasSleeping) {
+      if (gentleClicks.length >= rollSettings.clicks) later('invite', inviteRoll, 380);
+    }
     later('expression', () => setState('awake'), cfg.role === 'timid' ? 550 : 850);
   });
   cat.addEventListener('dblclick', () => { if (!touchInput) affection(); });
   function affection() {
-    if (suppressClick) return;
+    if (rolling || suppressClick) return;
+    clearTimeout(timers.invite);
     activity();
     setState('awake');
     bouncing?.cancel();
@@ -488,6 +600,63 @@
       { opacity: 0, transform: `translateY(${reducedMotion.matches ? 0 : -25}px) scale(1)` }
     ], { duration: 1400, easing: 'ease-out' });
   }
+  function inviteRoll() {
+    if (rolling || state === 'asleep' || state === 'yawning' || Date.now() < rollCooldown) return;
+    gentleClicks = [];
+    character.interactionCount++;
+    character.trust = Math.min(1, character.trust + (cfg.role === 'timid' ? .09 : .04));
+    rollCooldown = Date.now() + rollSettings.cooldownMs;
+    const chance = character.bellyRollChance * (.55 + character.trust * .45);
+    if (Math.random() > chance) {
+      setState('happy');
+      later('expression', () => setState('awake'), 700);
+      return;
+    }
+    roll();
+  }
+  async function roll() {
+    rolling = true;
+    cat.dataset.rolling = 'true';
+    pressing = false; gesture = null; suppressClick = true;
+    Object.values(timers).forEach(clearTimeout);
+    blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
+    setState('awake'); ears(); pupils.style.transform = 'translate(0, 0)';
+    cat.style.setProperty('--tilt', '0deg');
+    const duration = reducedMotion.matches ? 1 : 1050 + (1 - character.boldness) * 400;
+    const direction = cat.id === 'cat-2' ? -1 : 1;
+    const frames = [
+      { transform: 'rotate(0deg)', opacity: 1 },
+      { transform: `rotate(${direction * -6}deg)`, opacity: 1, offset: .22 },
+      { transform: `translateY(8px) rotate(${direction * 35}deg)`, opacity: 1, offset: .55 },
+      { transform: `translateY(12px) rotate(${direction * 95}deg) scale(.93)`, opacity: 0 }
+    ];
+    const bellyFrames = [
+      { transform: `rotate(${direction * -85}deg) scale(.93)`, opacity: 0 },
+      { transform: `rotate(${direction * -65}deg) scale(.96)`, opacity: 0, offset: .5 },
+      { transform: `rotate(${direction * 8}deg)`, opacity: 1, offset: .87 },
+      { transform: 'rotate(0deg)', opacity: 1 }
+    ];
+    const animate = async (reverse = false) => {
+      const options = { duration, easing: 'ease-in-out', fill: 'forwards', direction: reverse ? 'reverse' : 'normal' };
+      const animations = [sitting.animate(frames, options), belly.animate(bellyFrames, options)];
+      await Promise.all(animations.map(a => a.finished));
+      sitting.style.opacity = reverse ? '1' : '0';
+      belly.style.opacity = reverse ? '0' : '1';
+      animations.forEach(a => a.cancel());
+    };
+    try {
+      await animate();
+      cat.dataset.pose = 'belly';
+      await new Promise(resolve => setTimeout(resolve, rollSettings.stayMs + character.playfulness * 1400));
+      delete cat.dataset.pose;
+      await animate(true);
+    } finally {
+      sitting.style.opacity = '1'; belly.style.opacity = '0';
+      rolling = false; delete cat.dataset.rolling; delete cat.dataset.pose;
+      suppressClick = false; rollCooldown = Date.now() + rollSettings.cooldownMs;
+      setState('awake'); activity(); later('blink', doBlink, cfg.blink);
+    }
+  }
   setState('awake');
   activity();
   later('blink', doBlink, cfg.blink + Math.random() * 900);
@@ -495,3 +664,4 @@
   document.querySelectorAll('.cats > button').forEach(initCat);
 </script>
 </html>
+
