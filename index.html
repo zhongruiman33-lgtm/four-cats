@@ -60,7 +60,7 @@
   @media (prefers-reduced-motion: reduce) { .belly-paw, .belly-tail { animation: none !important; } }
   /* Extra poses reuse the current illustrations; sitting SVG source stays intact. */
   button > svg { transition: opacity .65s ease, transform .65s ease; }
-  button > .stand-pose, button > .sleep-belly, button > .grooming-detail { opacity: 0; pointer-events: none; }
+  button > .stand-pose, button > .sleep-pose, button > .grooming-detail { opacity: 0; pointer-events: none; }
   .stand-pose > g { transform-origin: 130px 242px; }
   [data-mode="standing"] > svg:first-child { opacity: 0; transform: translateY(-6px) scale(.98); }
   [data-mode="standing"] > .stand-pose { opacity: 1; }
@@ -70,15 +70,24 @@
   [data-mode="grooming"] .head, [data-mode="grooming"] .grooming-detail > g { animation: groom-nod .65s ease-in-out 4; }
   @keyframes groom-nod { 0%,100% { transform: rotate(9deg) translateY(2px); } 50% { transform: rotate(16deg) translateY(5px); } }
   .grooming-detail > g { transform-origin: 130px 151px; }
-  [data-sleep-pose="side"] > svg:first-child { transform-origin: 50% 62%; transform: translateY(32px) rotate(-65deg) scale(.8); }
-  [data-sleep-pose="belly"] > svg:first-child { opacity: 0; transform: rotate(45deg) scale(.9); }
-  [data-sleep-pose="belly"] > .sleep-belly { opacity: 1; transform: translateY(20px) rotate(-22deg) scale(.88); }
-  .sleep-belly > g { transform-origin: 130px 178px; transform: rotate(-16deg); }
-  [data-state="asleep"] > .sleep-belly .zzz { animation: drift 5s ease-in-out infinite; }
+  [data-sleep-pose] > svg:first-child { opacity: 0; }
+  [data-sleep-pose="curled"] > [data-sleep-art="curled"],
+  [data-sleep-pose="side"] > [data-sleep-art="side"],
+  [data-sleep-pose="paws"] > [data-sleep-art="paws"],
+  [data-sleep-pose="belly"] > [data-sleep-art="belly"],
+  [data-sleep-pose="halfSide"] > [data-sleep-art="halfSide"] { opacity: 1; }
+  .sleep-pose .eyes, .sleep-pose .happy-eyes, .sleep-pose .mouth-oh { opacity: 0; }
+  .sleep-pose .sleep-eyes { opacity: 1; }
+  .sleep-breath { transform-origin: 130px 246px; }
+  [data-state="asleep"] > .sleep-pose .sleep-breath { animation: sleep-breathe 7s ease-in-out infinite; }
+  .sleep-tail { transform-box: fill-box; transform-origin: center; }
+  [data-state="asleep"] > .sleep-pose .sleep-tail { animation: sleep-twitch 19s ease-in-out infinite; }
+  @keyframes sleep-breathe { 50% { transform: scale(1.003, 1.012); } }
+  @keyframes sleep-twitch { 0%,91%,96%,100% { transform: rotate(0); } 93% { transform: rotate(1.5deg); } }
   @media (prefers-reduced-motion: reduce) {
     button > svg { transition-duration: .01s; }
     [data-mode="grooming"] .head, [data-mode="grooming"] .grooming-detail > g { animation: none; }
-    [data-state="asleep"] > .sleep-belly .zzz { animation: none; opacity: .6; }
+    .sleep-pose .sleep-breath, .sleep-pose .sleep-tail { animation: none !important; }
   }
 </style>
 <main class="cats" aria-label="Four cats">
@@ -169,6 +178,203 @@
 <g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 <g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_1</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-curled-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-curled-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-curled-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-curled-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-curled-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-curled-face-clip"><use href="#cat-sleep-curled-face-shape"/></clipPath>
+      <filter id="cat-sleep-curled-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-curled-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-curled-fur)" stroke="#826d53" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-sleep-curled-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-sleep-curled-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#826d53" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-curled-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-curled-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-curled-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-curled-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-curled-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-side-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-side-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-side-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-side-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-side-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-side-face-clip"><use href="#cat-sleep-side-face-shape"/></clipPath>
+      <filter id="cat-sleep-side-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-side-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-side-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-sleep-side-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-sleep-side-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#826d53" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-sleep-side-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#826d53" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-sleep-side-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#826d53" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-sleep-side-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#826d53" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-side-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-side-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-side-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-side-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-side-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-paws-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-paws-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-paws-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-paws-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-paws-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-paws-face-clip"><use href="#cat-sleep-paws-face-shape"/></clipPath>
+      <filter id="cat-sleep-paws-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-paws-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-paws-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-sleep-paws-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-sleep-paws-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#826d53" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-sleep-paws-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#826d53" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-paws-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-paws-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-paws-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-paws-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-paws-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-belly-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-belly-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-belly-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-belly-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-belly-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-belly-face-clip"><use href="#cat-sleep-belly-face-shape"/></clipPath>
+      <filter id="cat-sleep-belly-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-belly-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-belly-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-sleep-belly-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="url(#cat-sleep-belly-white-fur)" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-sleep-belly-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#826d53" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-sleep-belly-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#826d53" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-sleep-belly-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#826d53" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-sleep-belly-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#826d53" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-belly-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-belly-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-belly-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-belly-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-belly-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-halfSide-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-halfSide-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-halfSide-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-halfSide-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-halfSide-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-halfSide-face-clip"><use href="#cat-sleep-halfSide-face-shape"/></clipPath>
+      <filter id="cat-sleep-halfSide-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-halfSide-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-halfSide-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-sleep-halfSide-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#826d53" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#826d53" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#826d53" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#826d53" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-halfSide-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-halfSide-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-halfSide-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-halfSide-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-halfSide-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 <!-- Cat 2: replace only this button’s SVG to change the second cat. -->
 <button id="cat-2" aria-label="White cat. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -233,6 +439,158 @@
 <g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 <g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_2</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-curled-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-curled-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-curled-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-curled-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-curled-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-curled-c2-face-clip"><use href="#cat-2-sleep-curled-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-curled-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-curled-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-curled-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-2-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-2-sleep-curled-sleep-body)" stroke="none"></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-2-sleep-curled-c2-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-curled-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-curled-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-curled-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-side-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-side-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-side-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-side-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-side-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-side-c2-face-clip"><use href="#cat-2-sleep-side-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-side-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-side-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-side-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-2-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-2-sleep-side-sleep-body)" stroke="none"></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-side-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-side-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-side-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-paws-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-paws-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-paws-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-paws-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-paws-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-paws-c2-face-clip"><use href="#cat-2-sleep-paws-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-paws-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-paws-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-paws-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-2-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-2-sleep-paws-sleep-body)" stroke="none"></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-2-sleep-paws-c2-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-2-sleep-paws-c2-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-paws-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-paws-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-paws-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-belly-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-belly-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-belly-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-belly-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-belly-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-belly-c2-face-clip"><use href="#cat-2-sleep-belly-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-belly-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-belly-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-belly-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-2-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-2-sleep-belly-sleep-body)" stroke="none"></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="url(#cat-2-sleep-belly-c2-white-fur)" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-belly-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-belly-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-belly-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-halfSide-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-halfSide-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-halfSide-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-halfSide-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-halfSide-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-halfSide-c2-face-clip"><use href="#cat-2-sleep-halfSide-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-halfSide-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-halfSide-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-halfSide-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-2-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-2-sleep-halfSide-sleep-body)" stroke="none"></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-halfSide-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-halfSide-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-halfSide-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 <!-- Cat 3: independent grey-brown tabby artwork. -->
 <button id="cat-3" aria-label="Grey-brown tabby cat. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -316,6 +674,208 @@
 <g fill="#aa9573" class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 <g fill="#aa9573" class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_3</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-curled-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-curled-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-curled-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-curled-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-curled-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-curled-c3-face-clip"><use href="#cat-3-sleep-curled-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-curled-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-curled-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-curled-c3-fur)" stroke="#82715a" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-3-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-3-sleep-curled-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-3-sleep-curled-c3-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#82715a" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-curled-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-curled-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-curled-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-curled-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-side-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-side-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-side-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-side-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-side-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-side-c3-face-clip"><use href="#cat-3-sleep-side-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-side-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-side-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-side-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-3-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-3-sleep-side-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#82715a" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#82715a" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#82715a" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#82715a" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-side-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-side-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-side-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-side-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-paws-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-paws-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-paws-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-paws-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-paws-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-paws-c3-face-clip"><use href="#cat-3-sleep-paws-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-paws-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-paws-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-paws-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-3-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-3-sleep-paws-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-3-sleep-paws-c3-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#82715a" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-3-sleep-paws-c3-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#82715a" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-paws-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-paws-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-paws-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-paws-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-belly-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-belly-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-belly-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-belly-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-belly-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-belly-c3-face-clip"><use href="#cat-3-sleep-belly-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-belly-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-belly-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-belly-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-3-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-3-sleep-belly-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="#b7a17d" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#82715a" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#82715a" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#82715a" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#82715a" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-belly-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-belly-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-belly-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-belly-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-halfSide-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-halfSide-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-halfSide-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-halfSide-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-halfSide-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-halfSide-c3-face-clip"><use href="#cat-3-sleep-halfSide-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-halfSide-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-halfSide-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-halfSide-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-3-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-3-sleep-halfSide-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#82715a" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#82715a" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#82715a" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#82715a" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-halfSide-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-halfSide-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-halfSide-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-halfSide-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 <!-- Cat 4: independent dark tabby artwork. -->
 <button id="cat-4" aria-label="Dark grey-brown tabby cat with a white chest spot. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -400,6 +960,203 @@
 <g fill="#8f8470" class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 <g fill="#8f8470" class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_4</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-curled-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-curled-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-curled-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-curled-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-curled-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-curled-c4-face-clip"><use href="#cat-4-sleep-curled-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-curled-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-curled-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-curled-c4-fur)" stroke="#625b4f" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-4-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-4-sleep-curled-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-4-sleep-curled-c4-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-curled-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-curled-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-curled-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-side-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-side-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-side-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-side-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-side-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-side-c4-face-clip"><use href="#cat-4-sleep-side-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-side-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-side-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-side-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-4-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-4-sleep-side-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-side-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-side-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-side-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-paws-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-paws-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-paws-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-paws-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-paws-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-paws-c4-face-clip"><use href="#cat-4-sleep-paws-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-paws-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-paws-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-paws-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-4-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-4-sleep-paws-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-4-sleep-paws-c4-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-4-sleep-paws-c4-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-paws-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-paws-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-paws-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-belly-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-belly-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-belly-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-belly-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-belly-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-belly-c4-face-clip"><use href="#cat-4-sleep-belly-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-belly-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-belly-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-belly-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-4-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-4-sleep-belly-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="#b3a58d" stroke="none"/><path d="M138 201 Q149 192 160 199 L164 209 Q150 225 139 215Z" fill="url(#cat-4-sleep-belly-c4-white-fur)" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-belly-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-belly-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-belly-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-halfSide-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-halfSide-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-halfSide-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-halfSide-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-halfSide-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-halfSide-c4-face-clip"><use href="#cat-4-sleep-halfSide-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-halfSide-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-halfSide-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-halfSide-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-4-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-4-sleep-halfSide-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-halfSide-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-halfSide-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-halfSide-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 </main>
 <script>
@@ -421,12 +1178,19 @@
   const rollSettings = { holdMs: 1100, clicks: 3, clickWindowMs: 2400, maxMovePx: 12, cooldownMs: 6500, stayMs: 3200 };
   // New behavior settings, in the same left-to-right order as catConfig.
   const extraBehavior = {
-    cat: { groomingChance: .22, canStand: true, standStretch: 1.02, sleepBellyChance: .08 },
-    'cat-2': { groomingChance: .1, canStand: false, standStretch: 1, sleepBellyChance: .01 },
-    'cat-3': { groomingChance: .48, canStand: true, standStretch: 1.07, sleepBellyChance: .45 },
-    'cat-4': { groomingChance: .38, canStand: true, standStretch: 1.12, sleepBellyChance: .7 }
+    cat: { groomingChance: .22, canStand: true, standStretch: 1.02, sleepPoseWeights: { curled: 35, side: 20, paws: 35, belly: 5, halfSide: 5 } },
+    'cat-2': { groomingChance: .1, canStand: false, standStretch: 1, sleepPoseWeights: { curled: 49, side: 15, paws: 32, belly: 1, halfSide: 3 } },
+    'cat-3': { groomingChance: .48, canStand: true, standStretch: 1.07, sleepPoseWeights: { curled: 15, side: 30, paws: 15, belly: 15, halfSide: 25 } },
+    'cat-4': { groomingChance: .38, canStand: true, standStretch: 1.12, sleepPoseWeights: { curled: 5, side: 25, paws: 5, belly: 40, halfSide: 25 } }
   };
   const extraSettings = { groomingClicksRequired: 3, groomingDuration: 2600, headTapsRequired: 5, headTapWindowMs: 3000, standDuration: 2400, settleMs: 700 };
+  function chooseSleepPose(weights) {
+    const entries = Object.entries(weights).filter(([, weight]) => Number.isFinite(weight) && weight > 0);
+    const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
+    let pick = Math.random() * total;
+    for (const [pose, weight] of entries) { pick -= weight; if (pick < 0) return pose; }
+    return entries.length ? entries[entries.length - 1][0] : 'paws';
+  }
   const companions = [];
   let lastNotice = -Infinity;
   function notify(source, kind) {
@@ -465,13 +1229,7 @@
     return pose;
   }
   if (extra.canStand) copyPose('stand-pose');
-  const sleepBelly = copyPose('sleep-belly');
-  sleepBelly.querySelectorAll('path').forEach(path => {
-    if (path.getAttribute('d') === 'M103 115 Q109 108 115 115 M145 115 Q151 108 157 115') path.setAttribute('d', 'M103 113 Q109 119 115 113 M145 113 Q151 119 157 113');
-  });
   const ns = 'http://www.w3.org/2000/svg';
-  const zzz = document.createElementNS(ns, 'text');
-  zzz.setAttribute('class', 'zzz'); zzz.setAttribute('x', '188'); zzz.setAttribute('y', '84'); zzz.textContent = 'zzz'; sleepBelly.append(zzz);
   const detail = document.createElementNS(ns, 'svg');
   detail.setAttribute('class', 'grooming-detail'); detail.setAttribute('viewBox', '0 0 260 290'); detail.setAttribute('aria-hidden', 'true');
   detail.innerHTML = '<g><path d="M128 147 Q131 157 134 148" fill="#d9a8a0" stroke="#bc9188" stroke-width=".6"/></g>';
@@ -514,12 +1272,17 @@
     timers[name] = setTimeout(fn, delay);
   }
   function setState(next) {
+    // Select once on entry, never reroll an ongoing sleep session.
+    if (next === 'asleep' && (state === 'asleep' || busy() || pressing)) return;
     clearTimeout(timers.expression);
     state = next;
     body.style.animationDuration = `${next === 'asleep' ? cfg.breathe * 1.5 : cfg.breathe}s`;
     if (next === 'asleep') {
       headTaps = []; gentleClicks = []; clearTimeout(timers.invite);
-      cat.dataset.sleepPose = Math.random() < extra.sleepBellyChance ? 'belly' : 'side';
+      ['look', 'notice', 'pet', 'rollHold', 'yawn'].forEach(key => clearTimeout(timers[key]));
+      bouncing?.cancel(); heartAnimation?.cancel();
+      sitting.style.opacity = ''; // Clear the completed roll's inline opacity before the sleep crossfade.
+      cat.dataset.sleepPose = chooseSleepPose(extra.sleepPoseWeights);
       notify(cat, 'sleep');
     } else delete cat.dataset.sleepPose;
     cat.dataset.state = next;
@@ -639,6 +1402,7 @@
   window.addEventListener('blur', release);
   cat.addEventListener('contextmenu', event => event.preventDefault());
   cat.addEventListener('click', event => {
+    if (state === 'asleep') { activity(); return; }
     if (busy() || suppressClick) { lastTap = 0; return; }
     const wasSleeping = wokeOnPress || state === 'asleep' || state === 'yawning';
     wokeOnPress = false;
@@ -680,6 +1444,7 @@
   });
   cat.addEventListener('dblclick', () => { if (!touchInput) affection(); });
   function affection() {
+    if (state === 'asleep') { activity(); return; }
     if (busy() || suppressClick) return;
     if (gentleClicks.length < 3) clearTimeout(timers.invite);
     activity();
