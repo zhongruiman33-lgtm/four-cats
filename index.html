@@ -89,6 +89,11 @@
     [data-mode="grooming"] .head, [data-mode="grooming"] .grooming-detail > g { animation: none; }
     .sleep-pose .sleep-breath, .sleep-pose .sleep-tail { animation: none !important; }
   }
+
+  /* One small toy, outside the layout and all existing cat artwork. */
+  #yarn-ball { position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 2; transform: translate(-50%, -50%); }
+  #yarn-ball[hidden] { display: none; }
+  [data-mode="toy"] .cat { animation-play-state: paused; }
 </style>
 <main class="cats" aria-label="Four cats">
 <!-- Cat 1: locked original artwork. -->
@@ -1159,6 +1164,14 @@
         </g></g></g></svg>
 </button>
 </main>
+<svg id="yarn-ball" viewBox="0 0 40 40" aria-hidden="true" hidden>
+  <ellipse cx="20" cy="35" rx="13" ry="2.5" fill="#b6a898" opacity=".16"/>
+  <circle cx="19" cy="19" r="14" fill="#cfaca0" stroke="#b68e82" stroke-width=".9"/>
+  <g fill="none" stroke="#f0d5c9" stroke-width="1.1" stroke-linecap="round">
+    <path d="M8 11 Q23 10 30 24 M6 17 Q20 15 27 29 M7 24 Q16 22 22 32 M15 6 Q8 18 14 30 M23 6 Q15 14 19 20 M29 11 Q24 13 23 18"/>
+  </g>
+  <path d="M29 28 Q34 31 32 34 Q29 37 37 35" fill="none" stroke="#b68e82" stroke-width="1.1" stroke-linecap="round"/>
+</svg>
 <script>
   // IDs follow the original visual order: calico, white, tabby, tabby.
   // Times are milliseconds; eye/ear ranges are SVG pixels; tilt is degrees.
@@ -1191,6 +1204,53 @@
     for (const [pose, weight] of entries) { pick -= weight; if (pick < 0) return pose; }
     return entries.length ? entries[entries.length - 1][0] : 'paws';
   }
+  // Toy distances are CSS pixels from the visible sitting body, chances are 0–1.
+  const toyBehavior = {
+    cat:     { radius: 145, watchMs: 850, touchChance: .18, shyDistance: 55, lean: 2, nudge: 3 },
+    'cat-2': { radius: 115, watchMs: 1200, touchChance: .04, shyDistance: 80, lean: 1.5, nudge: 2 },
+    'cat-3': { radius: 190, watchMs: 240, touchChance: .72, shyDistance: 0, lean: 3, nudge: 5 },
+    'cat-4': { radius: 210, watchMs: 90, touchChance: .94, shyDistance: 0, lean: 4, nudge: 7 }
+  };
+  const toySettings = { wakeDistance: 35, reachDistance: 48, maxMovePx: 10, tapMs: 500, reactionMs: 1400 };
+  const toyCats = [];
+  const yarn = document.querySelector('#yarn-ball');
+  let yarnPoint = null, yarnGesture = null, toyVersion = 0;
+  function toyDistance(cat, point) {
+    const r = cat.getBoundingClientRect();
+    // Ignore transparent margins, measuring from the existing visible body envelope.
+    return Math.hypot(Math.max(r.left + 65 - point.x, 0, point.x - r.left - 200),
+      Math.max(r.top + 60 - point.y, 0, point.y - r.top - 250));
+  }
+  function positionYarn(point) {
+    yarn.style.left = `${point.x + window.scrollX}px`;
+    yarn.style.top = `${point.y + window.scrollY}px`;
+  }
+  function placeYarn(point) {
+    const version = ++toyVersion;
+    toyCats.forEach(c => c.cancel());
+    yarnPoint = point; yarn.removeAttribute('hidden'); positionYarn(point);
+    const nearest = toyCats.map(c => ({ c, distance: toyDistance(c.cat, point) }))
+      .filter(({c, distance}) => distance <= c.settings.radius && c.available(distance))
+      .sort((a, b) => a.distance - b.distance)[0];
+    if (nearest) nearest.c.react(point, nearest.distance, version);
+  }
+  const emptyToyTarget = target => !target.closest('button, a, input, textarea, select, [contenteditable]');
+  document.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0 || !emptyToyTarget(event.target)) { yarnGesture = null; return; }
+    yarnGesture = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
+  });
+  document.addEventListener('pointermove', event => {
+    if (yarnGesture && event.pointerId === yarnGesture.id && Math.hypot(event.clientX - yarnGesture.x, event.clientY - yarnGesture.y) > toySettings.maxMovePx) yarnGesture = null;
+  });
+  document.addEventListener('pointercancel', () => { yarnGesture = null; });
+  window.addEventListener('scroll', () => { yarnGesture = null; }, { passive: true });
+  document.addEventListener('pointerup', event => {
+    const press = yarnGesture; yarnGesture = null;
+    if (!press || event.pointerId !== press.id || !emptyToyTarget(event.target) || performance.now() - press.time > toySettings.tapMs || Math.hypot(event.clientX - press.x, event.clientY - press.y) > toySettings.maxMovePx) return;
+    placeYarn({ x: Math.max(18, Math.min(window.innerWidth - 18, event.clientX)), y: Math.max(18, event.clientY) });
+  });
+  // A resized viewport may invalidate proximity; dismiss until the next placement.
+  window.addEventListener('resize', () => { ++toyVersion; toyCats.forEach(c => c.cancel()); yarn.setAttribute('hidden', ''); yarnPoint = null; });
   const companions = [];
   let lastNotice = -Infinity;
   function notify(source, kind) {
@@ -1267,6 +1327,50 @@
       later('look', () => { pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg'); }, 850);
     }, cfg.response);
   } });
+  const toy = toyBehavior[cat.id];
+  let toyAnimation;
+  function cancelToy() {
+    clearTimeout(timers.toyWatch); clearTimeout(timers.toyEnd);
+    toyAnimation?.cancel(); toyAnimation = null;
+    if (mode !== 'toy') return;
+    mode = ''; delete cat.dataset.mode;
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    activity();
+  }
+  toyCats.push({ cat, settings: toy, cancel: cancelToy,
+    available: distance => !busy() && !pressing && (state === 'awake' || (state === 'asleep' && distance <= toySettings.wakeDistance)),
+    react(point, distance, version) {
+      if (busy() || pressing) return;
+      if (state === 'asleep') { activity(); return; } // Close placement only wakes; no immediate play.
+      if (state !== 'awake') return;
+      ['sleep', 'yawn', 'expression', 'invite', 'notice', 'look', 'pet', 'rollHold'].forEach(key => clearTimeout(timers[key]));
+      headTaps = []; gentleClicks = []; bouncing?.cancel(); heartAnimation?.cancel();
+      mode = 'toy'; cat.dataset.mode = mode;
+      const r = cat.getBoundingClientRect(), dx = point.x - r.left - r.width / 2, dy = point.y - r.top - 125;
+      const length = Math.hypot(dx, dy) || 1, direction = Math.sign(dx) || 1;
+      pupils.style.transform = `translate(${dx / length * cfg.eye}px, ${dy / length * cfg.eye * .65}px)`;
+      cat.style.setProperty('--tilt', `${direction * cfg.tilt * .35}deg`);
+      const shy = distance < toy.shyDistance;
+      if (shy) {
+        if (!reducedMotion.matches) toyAnimation = bounce.animate([
+          { transform: 'translateX(0)' }, { transform: `translateX(${-direction * toy.lean}px)`, offset: .4 }, { transform: 'translateX(0)' }
+        ], { duration: 700, easing: 'ease-in-out' });
+      }
+      later('toyWatch', () => {
+        if (version !== toyVersion || mode !== 'toy' || shy || Math.random() >= toy.touchChance) return;
+        if (!reducedMotion.matches) toyAnimation = bounce.animate([
+          { transform: 'translateX(0)' }, { transform: `translateX(${direction * toy.lean}px)`, offset: .5 }, { transform: 'translateX(0)' }
+        ], { duration: 600, easing: 'ease-in-out' });
+        // No remote hits: only a ball close enough to reach gets a tiny nudge.
+        if (distance <= toySettings.reachDistance) {
+          const move = Math.max(18, Math.min(window.innerWidth - 18, point.x + direction * toy.nudge));
+          yarnPoint = { x: move, y: point.y }; positionYarn(yarnPoint);
+          if (!reducedMotion.matches) yarn.animate([{ transform: `translate(calc(-50% + ${point.x - move}px), -50%) rotate(-8deg)` }, { transform: 'translate(-50%, -50%) rotate(0deg)' }], { duration: 380, easing: 'ease-out' });
+        }
+      }, toy.watchMs);
+      later('toyEnd', cancelToy, toy.watchMs + toySettings.reactionMs);
+    }
+  });
   function later(name, fn, delay) {
     clearTimeout(timers[name]);
     timers[name] = setTimeout(fn, delay);
@@ -1329,6 +1433,7 @@
       gesture = null; headGesture = false; suppressClick = true; clearTimeout(timers.rollHold); release();
     }
     if (busy()) return;
+    if (state === 'asleep' && toyDistance(cat, { x: event.clientX, y: event.clientY }) > toySettings.wakeDistance) return; // Distant movement must not wake sleepers.
     if (event.pointerType === 'touch' && !gesture) return;
     activity();
     if (busy()) return;
@@ -1544,4 +1649,5 @@
   document.querySelectorAll('.cats > button').forEach(initCat);
 </script>
 </html>
+
 
