@@ -1206,13 +1206,23 @@
   }
   // Toy distances are CSS pixels from the visible sitting body, chances are 0–1.
   const toyBehavior = {
-    cat:     { radius: 145, watchMs: 850, touchChance: .18, shyDistance: 55, lean: 2, nudge: 3 },
-    'cat-2': { radius: 115, watchMs: 1200, touchChance: .04, shyDistance: 80, lean: 1.5, nudge: 2 },
-    'cat-3': { radius: 190, watchMs: 240, touchChance: .72, shyDistance: 0, lean: 3, nudge: 5 },
-    'cat-4': { radius: 210, watchMs: 90, touchChance: .94, shyDistance: 0, lean: 4, nudge: 7 }
+    cat:     { radius: 145, watchMs: 950, touchChance: .12, shyDistance: 65, lean: 2, nudge: 3, initiative: .25, startleChance: .8 },
+    'cat-2': { radius: 210, watchMs: 1400, touchChance: .08, shyDistance: 55, lean: 1.5, nudge: 2, initiative: .12, startleChance: .12 },
+    'cat-3': { radius: 190, watchMs: 240, touchChance: .85, shyDistance: 0, lean: 3, nudge: 5, initiative: 1.5, startleChance: 0 },
+    'cat-4': { radius: 210, watchMs: 90, touchChance: .94, shyDistance: 0, lean: 4, nudge: 7, initiative: 2.5, startleChance: 0 }
   };
   const toySettings = { wakeDistance: 35, reachDistance: 48, maxMovePx: 10, tapMs: 500, reactionMs: 1400 };
+  // Only one social observer; only the close playful pair may share a toy turn.
+  const socialBehavior = {
+    cat: { noticeChance: .28, responseMs: 280, nervousChance: .65 },
+    'cat-2': { noticeChance: .4, responseMs: 700, nervousChance: .08 },
+    'cat-3': { noticeChance: .85, responseMs: 100, nervousChance: 0 },
+    'cat-4': { noticeChance: .92, responseMs: 70, nervousChance: 0 }
+  };
+  const closePair = { 'cat-3': 'cat-4', 'cat-4': 'cat-3' };
+  const socialSettings = { pairNoticeChance: .95, pairJoinChance: .78, joinDelayMs: 420, pairDistance: 340 };
   const toyCats = [];
+  let toyJoinTimer;
   const yarn = document.querySelector('#yarn-ball');
   let yarnPoint = null, yarnGesture = null, toyVersion = 0;
   function toyDistance(cat, point) {
@@ -1229,10 +1239,23 @@
     const version = ++toyVersion;
     toyCats.forEach(c => c.cancel());
     yarnPoint = point; yarn.removeAttribute('hidden'); positionYarn(point);
-    const nearest = toyCats.map(c => ({ c, distance: toyDistance(c.cat, point) }))
-      .filter(({c, distance}) => distance <= c.settings.radius && c.available(distance))
-      .sort((a, b) => a.distance - b.distance)[0];
-    if (nearest) nearest.c.react(point, nearest.distance, version);
+    clearTimeout(toyJoinTimer);
+    const candidates = toyCats.map(c => ({ c, distance: toyDistance(c.cat, point) }))
+      .filter(({c, distance}) => distance <= c.settings.radius && c.available(distance));
+    // Proximity still matters; boldness decides who leads when several cats can see it.
+    const weighted = candidates.map(n => ({ ...n, weight: n.c.settings.initiative / (1 + n.distance / 70) }));
+    let pick = Math.random() * weighted.reduce((sum, n) => sum + n.weight, 0);
+    const leader = weighted.find(n => (pick -= n.weight) < 0) || weighted[weighted.length - 1];
+    if (!leader || !leader.c.react(point, leader.distance, version)) return;
+    const partner = candidates.find(n => n.c.cat.id === closePair[leader.c.cat.id]);
+    if (!partner || Math.random() >= socialSettings.pairJoinChance) return;
+    const a = leader.c.cat.getBoundingClientRect(), b = partner.c.cat.getBoundingClientRect();
+    if (Math.hypot(a.left - b.left, a.top - b.top) > socialSettings.pairDistance) return;
+    toyJoinTimer = setTimeout(() => {
+      if (version !== toyVersion || !yarnPoint || !partner.c.available(toyDistance(partner.c.cat, yarnPoint), true)) return;
+      partner.c.react(yarnPoint, toyDistance(partner.c.cat, yarnPoint), version);
+    }, socialSettings.joinDelayMs);
+
   }
   const emptyToyTarget = target => !target.closest('button, a, input, textarea, select, [contenteditable]');
   document.addEventListener('pointerdown', event => {
@@ -1250,7 +1273,7 @@
     placeYarn({ x: Math.max(18, Math.min(window.innerWidth - 18, event.clientX)), y: Math.max(18, event.clientY) });
   });
   // A resized viewport may invalidate proximity; dismiss until the next placement.
-  window.addEventListener('resize', () => { ++toyVersion; toyCats.forEach(c => c.cancel()); yarn.setAttribute('hidden', ''); yarnPoint = null; });
+  window.addEventListener('resize', () => { ++toyVersion; clearTimeout(toyJoinTimer); toyCats.forEach(c => c.cancel()); yarn.setAttribute('hidden', ''); yarnPoint = null; });
   const companions = [];
   let lastNotice = -Infinity;
   function notify(source, kind) {
@@ -1259,7 +1282,9 @@
     const nearby = companions.filter(c => c.cat !== source && c.available())
       .map(c => ({ c, distance: Math.hypot(c.cat.getBoundingClientRect().left - a.left, c.cat.getBoundingClientRect().top - a.top) }))
       .filter(n => n.distance < 620).sort((a, b) => a.distance - b.distance);
-    const observer = nearby.find(n => Math.random() < n.c.cfg.curiosity);
+    const friend = nearby.find(n => n.c.cat.id === closePair[source.id]);
+    const observer = friend && Math.random() < socialSettings.pairNoticeChance ? friend :
+      nearby.find(n => n !== friend && Math.random() < socialBehavior[n.c.cat.id].noticeChance);
     if (observer) { lastNotice = Date.now(); observer.c.notice(a.left + a.width / 2, kind); }
   }
   // Each cat owns its expression, timers, and animation instances.
@@ -1314,6 +1339,7 @@
     bouncing?.cancel();
     bouncing = bounce.animate([{ transform: 'scale(1)' }, { transform: `scale(${1+amount}, ${1-amount})`, offset: .25 }, { transform: `scale(${1-amount*.6}, ${1+amount})`, offset: .6 }, { transform: 'scale(1)' }], { duration: cfg.speed, easing: 'ease-in-out' });
   }
+  const social = socialBehavior[cat.id];
   companions.push({ cat, cfg, available: () => !busy() && state === 'awake' && !pressing, notice(x, kind) {
     later('notice', () => {
       if (busy() || state !== 'awake' || pressing) return;
@@ -1322,10 +1348,16 @@
       pupils.style.transform = `translate(${direction * cfg.eye}px, 0px)`;
       ears(direction * cfg.ear, 0);
       cat.style.setProperty('--tilt', `${direction * cfg.tilt * .6}deg`);
-      if (kind === 'click' && cfg.role === 'timid') { setState('surprised'); later('expression', () => setState('awake'), 450); }
+      if (kind === 'click' && Math.random() < social.nervousChance) {
+        setState('surprised'); later('expression', () => setState('awake'), 450);
+        if (!reducedMotion.matches) {
+          bouncing?.cancel();
+          bouncing = bounce.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-direction * 2}px)`, offset: .4 }, { transform: 'translateX(0)' }], { duration: 650, easing: 'ease-in-out' });
+        }
+      }
       if (kind === 'click' && cfg.role === 'bold') motion(cfg.bounce * .45);
       later('look', () => { pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg'); }, 850);
-    }, cfg.response);
+    }, social.responseMs);
   } });
   const toy = toyBehavior[cat.id];
   let toyAnimation;
@@ -1334,11 +1366,12 @@
     toyAnimation?.cancel(); toyAnimation = null;
     if (mode !== 'toy') return;
     mode = ''; delete cat.dataset.mode;
+    if (state === 'surprised') setState('awake');
     pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
     activity();
   }
   toyCats.push({ cat, settings: toy, cancel: cancelToy,
-    available: distance => !busy() && !pressing && (state === 'awake' || (state === 'asleep' && distance <= toySettings.wakeDistance)),
+    available: (distance, joining = false) => !busy() && !pressing && (state === 'awake' || (!joining && state === 'asleep' && distance <= toySettings.wakeDistance)),
     react(point, distance, version) {
       if (busy() || pressing) return;
       if (state === 'asleep') { activity(); return; } // Close placement only wakes; no immediate play.
@@ -1352,6 +1385,7 @@
       cat.style.setProperty('--tilt', `${direction * cfg.tilt * .35}deg`);
       const shy = distance < toy.shyDistance;
       if (shy) {
+        if (Math.random() < toy.startleChance) { setState('surprised'); later('expression', () => setState('awake'), 450); }
         if (!reducedMotion.matches) toyAnimation = bounce.animate([
           { transform: 'translateX(0)' }, { transform: `translateX(${-direction * toy.lean}px)`, offset: .4 }, { transform: 'translateX(0)' }
         ], { duration: 700, easing: 'ease-in-out' });
@@ -1360,7 +1394,7 @@
         if (version !== toyVersion || mode !== 'toy' || shy || Math.random() >= toy.touchChance) return;
         if (!reducedMotion.matches) toyAnimation = bounce.animate([
           { transform: 'translateX(0)' }, { transform: `translateX(${direction * toy.lean}px)`, offset: .5 }, { transform: 'translateX(0)' }
-        ], { duration: 600, easing: 'ease-in-out' });
+        ], { duration: cfg.role === 'timid' ? 1100 : 600, easing: 'ease-in-out' });
         // No remote hits: only a ball close enough to reach gets a tiny nudge.
         if (distance <= toySettings.reachDistance) {
           const move = Math.max(18, Math.min(window.innerWidth - 18, point.x + direction * toy.nudge));
@@ -1369,6 +1403,7 @@
         }
       }, toy.watchMs);
       later('toyEnd', cancelToy, toy.watchMs + toySettings.reactionMs);
+      return true;
     }
   });
   function later(name, fn, delay) {
@@ -1649,5 +1684,6 @@
   document.querySelectorAll('.cats > button').forEach(initCat);
 </script>
 </html>
+
 
 
