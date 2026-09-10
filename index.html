@@ -94,6 +94,19 @@
   #yarn-ball { position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 2; transform: translate(-50%, -50%); }
   #yarn-ball[hidden] { display: none; }
   [data-mode="toy"] .cat { animation-play-state: paused; }
+  /* Petting reuses the sitting face; no extra cat artwork. */
+  [data-mode="petting"] .cat { animation-play-state: paused; }
+  [data-petting] > svg:first-child .eyes { transition: transform .8s ease, opacity .8s ease; }
+  [data-petting] > svg:first-child .happy-eyes { transition: opacity .8s ease; }
+  [data-petting="relaxed"] > svg:first-child .eyes { transform: scaleY(.08); opacity: 0; }
+  [data-petting="relaxed"] > svg:first-child .happy-eyes { opacity: var(--pet-happy, .75); }
+  [data-petting="relaxed"] > svg:first-child .head { transform: translateY(var(--pet-lower, 2px)) rotate(1deg); transition-duration: .8s; }
+  [data-petting="relaxed"] > svg:first-child .bounce { animation: pet-purr .28s ease-in-out infinite; }
+  @keyframes pet-purr { 0%,100% { transform: translateY(0); } 50% { transform: translateY(var(--pet-purr, .2px)); } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-petting] > svg:first-child .bounce { animation: none; }
+    [data-petting] > svg:first-child .head, [data-petting] > svg:first-child .eyes, [data-petting] > svg:first-child .happy-eyes { transition-duration: .01s; }
+  }
 </style>
 <main class="cats" aria-label="Four cats">
 <!-- Cat 1: locked original artwork. -->
@@ -1221,6 +1234,15 @@
   };
   const closePair = { 'cat-3': 'cat-4', 'cat-4': 'cat-3' };
   const socialSettings = { pairNoticeChance: .95, pairJoinChance: .78, joinDelayMs: 420, pairDistance: 340 };
+  // Petting times are ms; purrIntensity and headLower are tiny SVG-pixel movements.
+  // Tolerance controls acceptance of repeated head touches within repeatWindowMs.
+  const pettingBehavior = {
+    cat: { pettingTolerance: .35, relaxDelay: 950, purrIntensity: .18, affectionChance: .25, pettingDuration: 4200, flinchChance: .55, watchChance: 0, headLower: 2, happyOpacity: .7 },
+    'cat-2': { pettingTolerance: .7, relaxDelay: 700, purrIntensity: .1, affectionChance: .15, pettingDuration: 4000, flinchChance: 0, watchChance: .2, headLower: 1.5, happyOpacity: .55 },
+    'cat-3': { pettingTolerance: .85, relaxDelay: 400, purrIntensity: .25, affectionChance: .55, pettingDuration: 5200, flinchChance: 0, watchChance: 0, headLower: 2.5, happyOpacity: .85 },
+    'cat-4': { pettingTolerance: .98, relaxDelay: 180, purrIntensity: .35, affectionChance: .8, pettingDuration: 7500, flinchChance: 0, watchChance: 0, headLower: 3, happyOpacity: 1 }
+  };
+  const pettingSettings = { holdMs: 350, repeatWindowMs: 3000, heartAfterMs: 2200, settleMs: 650, playfulChance: .35 };
   const toyCats = [];
   let toyJoinTimer;
   const yarn = document.querySelector('#yarn-ball');
@@ -1296,7 +1318,7 @@
   const busy = () => rolling || mode !== '';
   cat.style.setProperty('--stand-stretch', extra.standStretch);
   cat.querySelector('.cat-label').textContent = character.name;
-  cat.setAttribute('aria-label', `${character.name}. ${cat.getAttribute('aria-label')} Hold to invite a belly roll; several gentle clicks may invite grooming or a roll.${extra.canStand ? ' Five head taps within three seconds invite a brief stand.' : ''}`);
+  cat.setAttribute('aria-label', `${character.name}. ${cat.getAttribute('aria-label')} Hold the body to invite a belly roll; several gentle clicks may invite grooming or a roll.${extra.canStand ? ' Five head taps within three seconds invite a brief stand.' : ''}`);
   const sitting = cat.querySelector('svg');
   const belly = cat.querySelector('.belly-pose');
   // Clone only the alternate belly artwork, never the original sitting SVG.
@@ -1464,6 +1486,7 @@
   cat.addEventListener('mouseenter', () => { hovered = true; activity(); doBlink(); });
   cat.addEventListener('mouseleave', () => { hovered = false; });
   function trackPointer(event) {
+    if (gesture && gesture.id === event.pointerId && pressing && !overHead(event)) { suppressClick = true; release(); }
     if (gesture && gesture.id === event.pointerId && Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > rollSettings.maxMovePx) {
       gesture = null; headGesture = false; suppressClick = true; clearTimeout(timers.rollHold); release();
     }
@@ -1496,6 +1519,58 @@
     if (pressing && !overHead(event)) release();
   }
   document.addEventListener('pointermove', trackPointer);
+  const pet = pettingBehavior[cat.id];
+  let petTouches = [], petMotion;
+  cat.style.setProperty('--pet-purr', `${pet.purrIntensity}px`);
+  cat.style.setProperty('--pet-lower', `${pet.headLower}px`);
+  cat.style.setProperty('--pet-happy', pet.happyOpacity);
+  function endPetting() {
+    if (mode !== 'petting') return;
+    ['petRelax', 'petEnd', 'petHeart', 'petPlay', 'petResume'].forEach(key => clearTimeout(timers[key]));
+    petMotion?.cancel(); petMotion = null; heartAnimation?.cancel();
+    delete cat.dataset.petting; gesture = null; pressing = false; headGesture = false;
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    setState('awake'); mode = 'pet-settling'; cat.dataset.mode = mode;
+    later('petSettle', () => { mode = ''; delete cat.dataset.mode; activity(); later('blink', doBlink, cfg.blink); }, pettingSettings.settleMs);
+  }
+  function startPetting() {
+    if (!gesture || !pressing || busy() || state === 'asleep' || state === 'yawning') return;
+    ['sleep', 'yawn', 'expression', 'invite', 'notice', 'look', 'rollHold'].forEach(key => clearTimeout(timers[key]));
+    blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
+    headTaps = []; gentleClicks = []; headGesture = false; lastTap = 0; suppressClick = true;
+    setState('awake'); mode = 'petting'; cat.dataset.mode = mode; cat.dataset.petting = 'cautious';
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    const repeated = petTouches.length > 1;
+    const declines = (repeated && Math.random() > pet.pettingTolerance) || Math.random() < pet.watchChance;
+    if (Math.random() < pet.flinchChance && !reducedMotion.matches) {
+      petMotion = bounce.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-1.5px)', offset: .3 }, { transform: 'translateY(0)' }], { duration: 380, easing: 'ease-out' });
+    }
+    if (declines) {
+      cat.dataset.petting = 'watching';
+      later('petEnd', endPetting, 850);
+      return;
+    }
+    later('petRelax', () => {
+      if (mode !== 'petting' || !pressing) return;
+      petMotion?.cancel(); cat.dataset.petting = 'relaxed'; ears(0, .8);
+      later('petHeart', () => {
+        if (mode !== 'petting' || !pressing || Math.random() >= pet.affectionChance) return;
+        heartAnimation = cat.querySelector('.heart').animate([
+          { opacity: 0, transform: 'scale(.45)' }, { opacity: .65, transform: 'scale(.55)', offset: .4 },
+          { opacity: 0, transform: `translateY(${reducedMotion.matches ? 0 : -8}px) scale(.5)` }
+        ], { duration: 1100, easing: 'ease-out' });
+      }, pettingSettings.heartAfterMs);
+      if (cfg.role === 'curious' && Math.random() < pettingSettings.playfulChance) {
+        later('petPlay', () => {
+          if (mode !== 'petting' || !pressing) return;
+          // A brief mischievous glance keeps the original paws and markings intact.
+          cat.dataset.petting = 'playful'; cat.style.setProperty('--tilt', '-2deg');
+          later('petResume', () => { if (mode === 'petting' && pressing) { cat.dataset.petting = 'relaxed'; cat.style.setProperty('--tilt', '0deg'); } }, 450);
+        }, 1500);
+      }
+    }, pet.relaxDelay);
+    later('petEnd', endPetting, pet.pettingDuration);
+  }
   function overHead(event) {
     const head = cat.querySelector('.head').getBoundingClientRect();
     return event.clientX >= head.left && event.clientX <= head.right &&
@@ -1514,13 +1589,16 @@
     if (busy()) return;
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
     if (touchInput) { hovered = true; trackPointer(event); doBlink(); }
-    if (!wasSleeping) later('rollHold', () => { if (gesture) { suppressClick = true; inviteRoll(); } }, rollSettings.holdMs);
-    if (!overHead(event)) return;
+    if (!wasSleeping && !headGesture) later('rollHold', () => { if (gesture) { suppressClick = true; inviteRoll(); } }, rollSettings.holdMs);
+    if (!headGesture) return;
+    petTouches = petTouches.filter(time => Date.now() - time < pettingSettings.repeatWindowMs);
+    petTouches.push(Date.now());
     pressing = true;
-    later('pet', () => { suppressClick = true; bouncing?.cancel(); setState('happy'); }, 450);
+    later('pet', startPetting, pettingSettings.holdMs);
   });
   function release() {
     gesture = null; clearTimeout(timers.rollHold);
+    if (mode === 'petting') { endPetting(); return; }
     if (!pressing) return;
     pressing = false;
     clearTimeout(timers.pet);
@@ -1540,6 +1618,9 @@
     }
   });
   window.addEventListener('blur', release);
+  window.addEventListener('scroll', release, { passive: true });
+  window.addEventListener('resize', release);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) release(); });
   cat.addEventListener('contextmenu', event => event.preventDefault());
   cat.addEventListener('click', event => {
     if (state === 'asleep') { activity(); return; }
@@ -1684,6 +1765,3 @@
   document.querySelectorAll('.cats > button').forEach(initCat);
 </script>
 </html>
-
-
-
