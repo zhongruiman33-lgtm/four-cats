@@ -1247,6 +1247,19 @@
     'cat-4': { pettingTolerance: .98, relaxDelay: 180, purrIntensity: .35, affectionChance: .8, pettingDuration: 7500, flinchChance: 0, watchChance: 0, headLower: 3, happyOpacity: 1 }
   };
   const pettingSettings = { holdMs: 350, repeatWindowMs: 3000, heartAfterMs: 2200, settleMs: 650, playfulChance: .35 };
+  // A chain belongs to one user placement. Internal passes never renew its budget.
+  const toyChainSettings = { maxExchanges: 3, nearbyPx: 340, travelMs: 650, pairWeight: 8 };
+  const toyChainBehavior = {
+    cat: { passChance: .12, receiveChance: .12 },
+    'cat-2': { passChance: .06, receiveChance: .06 },
+    'cat-3': { passChance: .9, receiveChance: .95 },
+    'cat-4': { passChance: .95, receiveChance: 1 }
+  };
+  let toyChain = { remaining: 0, exchanges: 0, members: [], inFlight: false }, chainArrival, chainTrack;
+  function resetToyChain() {
+    clearTimeout(chainArrival); clearTimeout(chainTrack);
+    toyChain = { remaining: 0, exchanges: 0, members: [], inFlight: false };
+  }
   const toyCats = [];
   let toyJoinTimer;
   const yarn = document.querySelector('#yarn-ball');
@@ -1264,7 +1277,7 @@
   function positionYarn(point) {
     yarn.style.left = `${point.x}px`; yarn.style.top = `${point.y}px`;
   }
-  function moveYarn(point, animate = false) {
+  function moveYarn(point, animate = false, duration = 420) {
     const old = yarnPoint; yarnPoint = clampYarn(point); ballAnimation?.cancel();
     positionYarn(yarnPoint); yarn.removeAttribute('hidden');
     if (animate && old && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -1272,10 +1285,11 @@
         { transform: `translate(calc(-50% + ${old.x-yarnPoint.x}px), calc(-50% + ${old.y-yarnPoint.y}px)) rotate(-35deg)` },
         { transform: 'translate(-50%, calc(-50% - 2px)) rotate(-8deg)', offset: .7 },
         { transform: 'translate(-50%, -50%) rotate(0deg)' }
-      ], { duration: 420, easing: 'ease-out' });
+      ], { duration, easing: 'ease-out' });
     }
   }
   function cancelToyTurn() {
+    resetToyChain();
     ++toyVersion; clearTimeout(toyJoinTimer); toyCats.forEach(c => c.cancel());
   }
   function rollYarn() {
@@ -1286,7 +1300,9 @@
   }
   yarn.addEventListener('pointerdown', event => {
     if (!event.isPrimary || event.button !== 0) return;
-    event.preventDefault(); event.stopPropagation(); cancelToyTurn(); ballAnimation?.cancel();
+    event.preventDefault(); event.stopPropagation();
+    const visibleBall = yarn.getBoundingClientRect();
+    cancelToyTurn(); moveYarn({x:visibleBall.left+visibleBall.width/2,y:visibleBall.top+visibleBall.height/2});
     yarnDrag = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: yarnPoint.x-event.clientX, dy: yarnPoint.y-event.clientY, moved: false };
     yarn.setPointerCapture(event.pointerId);
   });
@@ -1311,10 +1327,11 @@
   yarn.addEventListener('lostpointercapture', cancelYarnDrag);
   yarn.addEventListener('keydown', event => { if (event.key==='Enter'||event.key===' ') { event.preventDefault(); rollYarn(); } });
   yarn.addEventListener('contextmenu', event=>event.preventDefault());
-  window.addEventListener('blur', cancelYarnDrag);
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelYarnDrag();});
+  window.addEventListener('blur', () => { cancelYarnDrag(); cancelToyTurn(); });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelYarnDrag();cancelToyTurn();}});
   function placeYarn(point) {
     point = clampYarn(point);
+    resetToyChain();
     const version = ++toyVersion;
     toyCats.forEach(c => c.cancel());
     yarnPoint = point; yarn.removeAttribute('hidden'); positionYarn(point);
@@ -1326,15 +1343,58 @@
     let pick = Math.random() * weighted.reduce((sum, n) => sum + n.weight, 0);
     const leader = weighted.find(n => (pick -= n.weight) < 0) || weighted[weighted.length - 1];
     if (!leader || !leader.c.react(point, leader.distance, version)) return;
+    toyChain.remaining = 1 + Math.min(toyChainSettings.maxExchanges - 1, Math.floor(Math.random() * toyChainSettings.maxExchanges));
+    toyChain.members = [leader.c.cat.id];
     const partner = candidates.find(n => n.c.cat.id === closePair[leader.c.cat.id]);
     if (!partner || Math.random() >= partner.c.settings.joinChance) return;
     const a = leader.c.cat.getBoundingClientRect(), b = partner.c.cat.getBoundingClientRect();
     if (Math.hypot(a.left - b.left, a.top - b.top) > socialSettings.pairDistance) return;
     toyJoinTimer = setTimeout(() => {
       if (version !== toyVersion || !yarnPoint || !partner.c.available(toyDistance(partner.c.cat, yarnPoint), true)) return;
-      partner.c.react(yarnPoint, toyDistance(partner.c.cat, yarnPoint), version);
+      if (partner.c.react(yarnPoint, toyDistance(partner.c.cat, yarnPoint), version)) toyChain.members = [leader.c.cat.id, partner.c.cat.id];
     }, socialSettings.joinDelayMs);
 
+  }
+  function passYarn(source, version) {
+    if (version !== toyVersion || yarnDrag || !yarnPoint || toyChain.inFlight || toyChain.remaining <= 0 || Math.random() >= toyChainBehavior[source.id].passChance) return false;
+    const from = source.getBoundingClientRect();
+    const options = toyCats.filter(c => c.cat !== source && c.canReceive() &&
+      (toyChain.members.length < 2 || toyChain.members.includes(c.cat.id)))
+      .map(c => {
+        const r = c.cat.getBoundingClientRect(), side = Math.sign(from.left - r.left) || 1;
+        const target = { x: r.left + 130 + side * 36, y: r.top + 251 };
+        const bounded = clampYarn(target);
+        return { c, target, visible: Math.abs(bounded.x-target.x)<1 && Math.abs(bounded.y-target.y)<1,
+          distance: Math.hypot(r.left-from.left,r.top-from.top), weight: closePair[source.id] === c.cat.id ? toyChainSettings.pairWeight : 1 };
+      }).filter(n => n.visible && n.distance <= toyChainSettings.nearbyPx);
+    if (!options.length) return false;
+    let pick = Math.random() * options.reduce((sum,n)=>sum+n.weight,0);
+    const receiver = options.find(n => (pick -= n.weight) < 0) || options[options.length-1];
+    if (!receiver.c.reserve(receiver.target)) return false;
+    clearTimeout(toyJoinTimer);
+    toyChain.members = [source.id, receiver.c.cat.id];
+    toyChain.remaining--; toyChain.exchanges++; toyChain.inFlight = true;
+    const start = { ...yarnPoint }, travel = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : toyChainSettings.travelMs;
+    moveYarn(receiver.target, true, travel);
+    // Match the existing easing approximately while eyes follow the travelling ball.
+    let step = 0;
+    const steps = Math.ceil(travel / 65);
+    const follow = () => {
+      if (version !== toyVersion || !toyChain.inFlight) return;
+      const fraction = Math.min(++step / steps / .7, 1);
+      const point = { x:start.x+(receiver.target.x-start.x)*fraction, y:start.y+(receiver.target.y-start.y)*fraction };
+      toyCats.forEach(c=>c.track(point));
+      if(step < steps) chainTrack = setTimeout(follow,65);
+    };
+    if (travel > 1) follow();
+    chainArrival = setTimeout(() => {
+      if (version !== toyVersion || yarnDrag) return;
+      clearTimeout(chainTrack); toyChain.inFlight = false;
+      if (!receiver.c.canReceive()) { receiver.c.cancel(); return; }
+      receiver.c.cancel();
+      receiver.c.react(yarnPoint, toyDistance(receiver.c.cat,yarnPoint), version, true);
+    }, travel);
+    return true;
   }
   const emptyToyTarget = target => !target.closest('#yarn-ball, button, a, input, textarea, select, [contenteditable]');
   document.addEventListener('pointerdown', event => {
@@ -1349,7 +1409,7 @@
   document.addEventListener('pointerup', event => {
     const press = yarnGesture; yarnGesture = null;
     if (!press || event.pointerId !== press.id || !emptyToyTarget(event.target) || performance.now() - press.time > toySettings.tapMs || Math.hypot(event.clientX - press.x, event.clientY - press.y) > toySettings.maxMovePx) return;
-    placeYarn({ x: Math.max(18, Math.min(window.innerWidth - 18, event.clientX)), y: Math.max(18, event.clientY) });
+    moveYarn({x:event.clientX,y:event.clientY}); placeYarn(yarnPoint);
   });
   window.addEventListener('resize', () => { cancelYarnDrag(); cancelToyTurn(); if (yarnPoint) moveYarn(yarnPoint); });
   const companions = [];
@@ -1452,7 +1512,7 @@
     cat.style.setProperty('--tilt', `${Math.sign(dx)*cfg.tilt*.35}deg`);
   }
   function tapYarn(version, again = false) {
-    if (version!==toyVersion || mode!=='toy' || state!=='awake' || yarnDrag || !yarnPoint) return;
+    if (version!==toyVersion || mode!=='toy' || state!=='awake' || yarnDrag || toyChain.inFlight || !yarnPoint) return;
     const r=cat.getBoundingClientRect(), direction=Math.sign(yarnPoint.x-r.left-130)||1;
     const origin={x:r.left+130+direction*24,y:r.top+240};
     const dx=yarnPoint.x-origin.x, dy=yarnPoint.y-origin.y, distance=Math.hypot(dx,dy)||1;
@@ -1465,13 +1525,15 @@
       {transform:`translate(${origin.x-r.left+dx/distance*reach}px, ${origin.y-r.top+dy/distance*reach}px) rotate(${direction*8}deg)`,offset:.5},
       {transform:`translate(${origin.x-r.left}px, ${origin.y-r.top}px)`}
     ],{duration:420,easing:'ease-in-out'});
+    const doubleTap = !again && Math.random()<toy.doubleTapChance;
     later('pawHit',()=>{
       if(version!==toyVersion||mode!=='toy'||yarnDrag||!yarnPoint)return;
+      if (!doubleTap && passYarn(cat,version)) return;
       moveYarn({x:yarnPoint.x+dx/distance*(toy.nudge+8),y:yarnPoint.y+dy/distance*(toy.nudge+8)},true);
       toyCats.forEach(c=>c.track(yarnPoint));
     },180);
     later('pawHide',()=>{delete cat.dataset.toyPaw;pawAnimation?.cancel();},430);
-    if(!again && Math.random()<toy.doubleTapChance)later('pawAgain',()=>tapYarn(version,true),600);
+    if(doubleTap)later('pawAgain',()=>tapYarn(version,true),600);
   }
   function cancelToy() {
     clearTimeout(timers.toyWatch); clearTimeout(timers.toyEnd);
@@ -1484,9 +1546,20 @@
     pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
     activity();
   }
-  toyCats.push({ cat, settings: toy, cancel: cancelToy, track: trackYarn,
+  const canReceive = () => !rolling && !pressing && state === 'awake' && (mode === '' || mode === 'toy');
+  toyCats.push({ cat, settings: toy, cancel: cancelToy, track: trackYarn, canReceive,
+    reserve(point) {
+      if (!canReceive()) return false;
+      cancelToy();
+      ['sleep','yawn','expression','invite','notice','look','pet','rollHold'].forEach(key=>clearTimeout(timers[key]));
+      blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
+      headTaps=[];gentleClicks=[];mode='toy';cat.dataset.mode=mode;
+      trackYarn(point);
+      later('toyEnd',cancelToy,toyChainSettings.travelMs+toySettings.reactionMs);
+      return true;
+    },
     available: (distance, joining = false) => !busy() && !pressing && state === 'awake',
-    react(point, distance, version) {
+    react(point, distance, version, receivedPass = false) {
       if (busy() || pressing) return;
       if (state !== 'awake') return;
       ['sleep', 'yawn', 'expression', 'invite', 'notice', 'look', 'pet', 'rollHold'].forEach(key => clearTimeout(timers[key]));
@@ -1504,7 +1577,7 @@
         ], { duration: 700, easing: 'ease-in-out' });
       }
       later('toyWatch', () => {
-        if (version !== toyVersion || mode !== 'toy' || yarnDrag || Math.random() >= toy.pawChance) return;
+        if (version !== toyVersion || mode !== 'toy' || yarnDrag || Math.random() >= (receivedPass ? toyChainBehavior[cat.id].receiveChance : toy.pawChance)) return;
         if (!reducedMotion.matches) toyAnimation = bounce.animate([
           { transform: 'translateX(0)' }, { transform: `translateX(${direction * toy.lean}px)`, offset: .5 }, { transform: 'translateX(0)' }
         ], { duration: cfg.role === 'timid' ? 1100 : 600, easing: 'ease-in-out' });
