@@ -58,6 +58,59 @@
   @keyframes paw-wiggle { to { transform: rotate(var(--wiggle, 8deg)) translateY(-2px); } }
   @keyframes tail-wiggle { to { transform: rotate(var(--wiggle, 8deg)); } }
   @media (prefers-reduced-motion: reduce) { .belly-paw, .belly-tail { animation: none !important; } }
+  /* Extra poses reuse the current illustrations; sitting SVG source stays intact. */
+  button > svg { transition: opacity .65s ease, transform .65s ease; }
+  button > .stand-pose, button > .sleep-pose, button > .grooming-detail { opacity: 0; pointer-events: none; }
+  .stand-pose > g { transform-origin: 130px 242px; }
+  [data-mode="standing"] > svg:first-child { opacity: 0; transform: translateY(-6px) scale(.98); }
+  [data-mode="standing"] > .stand-pose { opacity: 1; }
+  [data-mode="standing"] > .stand-pose > g { transform: scaleY(var(--stand-stretch)); }
+  [data-mode="standing"] .cat, [data-mode="grooming"] .cat { animation-play-state: paused; }
+  [data-mode="grooming"] > .grooming-detail { opacity: 1; }
+  [data-mode="grooming"] .head, [data-mode="grooming"] .grooming-detail > g { animation: groom-nod .65s ease-in-out 4; }
+  @keyframes groom-nod { 0%,100% { transform: rotate(9deg) translateY(2px); } 50% { transform: rotate(16deg) translateY(5px); } }
+  .grooming-detail > g { transform-origin: 130px 151px; }
+  [data-sleep-pose] > svg:first-child { opacity: 0; }
+  [data-sleep-pose="curled"] > [data-sleep-art="curled"],
+  [data-sleep-pose="side"] > [data-sleep-art="side"],
+  [data-sleep-pose="paws"] > [data-sleep-art="paws"],
+  [data-sleep-pose="belly"] > [data-sleep-art="belly"],
+  [data-sleep-pose="halfSide"] > [data-sleep-art="halfSide"] { opacity: 1; }
+  .sleep-pose .eyes, .sleep-pose .happy-eyes, .sleep-pose .mouth-oh { opacity: 0; }
+  .sleep-pose .sleep-eyes { opacity: 1; }
+  .sleep-breath { transform-origin: 130px 246px; }
+  [data-state="asleep"] > .sleep-pose .sleep-breath { animation: sleep-breathe 7s ease-in-out infinite; }
+  .sleep-tail { transform-box: fill-box; transform-origin: center; }
+  [data-state="asleep"] > .sleep-pose .sleep-tail { animation: sleep-twitch 19s ease-in-out infinite; }
+  @keyframes sleep-breathe { 50% { transform: scale(1.003, 1.012); } }
+  @keyframes sleep-twitch { 0%,91%,96%,100% { transform: rotate(0); } 93% { transform: rotate(1.5deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    button > svg { transition-duration: .01s; }
+    [data-mode="grooming"] .head, [data-mode="grooming"] .grooming-detail > g { animation: none; }
+    .sleep-pose .sleep-breath, .sleep-pose .sleep-tail { animation: none !important; }
+  }
+
+  /* One small toy, outside the layout and all existing cat artwork. */
+  #yarn-ball { position: fixed; width: 34px; height: 34px; pointer-events: auto; touch-action: none; cursor: grab; z-index: 2; transform: translate(-50%, -50%); }
+  #yarn-ball[hidden] { display: none; }
+  [data-mode="toy"] .cat { animation-play-state: paused; }
+  /* Petting reuses the sitting face; no extra cat artwork. */
+  [data-mode="petting"] .cat { animation-play-state: paused; }
+  [data-petting] > svg:first-child .eyes { transition: transform .8s ease, opacity .8s ease; }
+  [data-petting] > svg:first-child .happy-eyes { transition: opacity .8s ease; }
+  [data-petting="relaxed"] > svg:first-child .eyes { transform: scaleY(.08); opacity: 0; }
+  [data-petting="relaxed"] > svg:first-child .happy-eyes { opacity: var(--pet-happy, .75); }
+  [data-petting="relaxed"] > svg:first-child .head { transform: translateY(var(--pet-lower, 2px)) rotate(1deg); transition-duration: .8s; }
+  [data-petting="relaxed"] > svg:first-child .bounce { animation: pet-purr .28s ease-in-out infinite; }
+  @keyframes pet-purr { 0%,100% { transform: translateY(0); } 50% { transform: translateY(var(--pet-purr, .2px)); } }
+  @media (prefers-reduced-motion: reduce) {
+    [data-petting] > svg:first-child .bounce { animation: none; }
+    [data-petting] > svg:first-child .head, [data-petting] > svg:first-child .eyes, [data-petting] > svg:first-child .happy-eyes { transition-duration: .01s; }
+  }
+  #yarn-ball:active { cursor: grabbing; }
+  #yarn-ball:focus-visible { outline: 1px solid #b9ac99; outline-offset: 4px; border-radius: 50%; }
+  button > .toy-paw-detail { pointer-events: none; opacity: 0; transition: opacity .15s; }
+  [data-toy-paw] > .toy-paw-detail { opacity: 1; }
 </style>
 <main class="cats" aria-label="Four cats">
 <!-- Cat 1: locked original artwork. -->
@@ -147,6 +200,203 @@
 <g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 <g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_1</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-curled-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-curled-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-curled-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-curled-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-curled-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-curled-face-clip"><use href="#cat-sleep-curled-face-shape"/></clipPath>
+      <filter id="cat-sleep-curled-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-curled-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-curled-fur)" stroke="#826d53" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-sleep-curled-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-sleep-curled-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#826d53" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-curled-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-curled-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-curled-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-curled-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-curled-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-side-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-side-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-side-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-side-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-side-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-side-face-clip"><use href="#cat-sleep-side-face-shape"/></clipPath>
+      <filter id="cat-sleep-side-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-side-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-side-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-sleep-side-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-sleep-side-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#826d53" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-sleep-side-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#826d53" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-sleep-side-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#826d53" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-sleep-side-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#826d53" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-side-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-side-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-side-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-side-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-side-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-paws-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-paws-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-paws-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-paws-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-paws-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-paws-face-clip"><use href="#cat-sleep-paws-face-shape"/></clipPath>
+      <filter id="cat-sleep-paws-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-paws-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-paws-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-sleep-paws-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-sleep-paws-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#826d53" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-sleep-paws-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#826d53" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-paws-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-paws-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-paws-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-paws-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-paws-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-belly-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-belly-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-belly-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-belly-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-belly-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-belly-face-clip"><use href="#cat-sleep-belly-face-shape"/></clipPath>
+      <filter id="cat-sleep-belly-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-belly-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-belly-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-sleep-belly-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="url(#cat-sleep-belly-white-fur)" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-sleep-belly-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#826d53" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-sleep-belly-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#826d53" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-sleep-belly-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#826d53" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-sleep-belly-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#826d53" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-belly-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-belly-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-belly-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-belly-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-belly-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-sleep-halfSide-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#c19a61"/><stop offset="1" stop-color="#99754e"/>
+      </linearGradient>
+      <linearGradient id="cat-sleep-halfSide-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-sleep-halfSide-ear" x2="0" y2="1">
+        <stop stop-color="#a48a78"/><stop offset="1" stop-color="#c5ae96"/>
+      </linearGradient>
+      <clipPath id="cat-sleep-halfSide-body-clip"><use href="#body-shape"/></clipPath>
+      <clipPath id="cat-sleep-halfSide-tail-clip"><use href="#tail-shape"/></clipPath>
+      <clipPath id="cat-sleep-halfSide-face-clip"><use href="#cat-sleep-halfSide-face-shape"/></clipPath>
+      <filter id="cat-sleep-halfSide-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-sleep-halfSide-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-sleep-halfSide-fur)" stroke="#826d53" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#826d53" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#b58d59" stroke-width="14" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#514535" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-sleep-halfSide-sleep-body)" stroke="none"><path d="M90 152 Q143 174 132 234 L84 247Z" fill="#77634d"/><path d="M154 152 Q201 162 214 212 L169 230 Q184 198 154 184Z" fill="#ba844e"/><g fill="none" stroke="#514535" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#826d53" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#826d53" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#826d53" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-sleep-halfSide-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#826d53" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-sleep-halfSide-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          <g clip-path="url(#cat-sleep-halfSide-face-clip)" stroke="none">
+            <path d="M66 52 L116 65 Q134 86 124 102 Q115 117 125 139 L112 158 L71 147Z" fill="#928369"/>
+            <path d="M138 76 L189 55 L196 141 Q169 151 145 136 Q136 118 139 104 Q129 91 138 76Z" fill="#d39b56"/>
+            <path d="M70 56 L85 53 L108 81 L99 87Z M160 80 L184 53 L188 93 L178 88 L178 65Z" fill="#585441"/>
+            <g fill="none" stroke="#524d3d" stroke-linecap="round">
+              <path d="M112 79 L118 98 M127 78 L127 94 M139 79 L136 90" stroke-width="5"/>
+              <path d="M83 105 L97 112 M77 116 L91 120 M78 145 L95 149 M178 108 L168 114 M183 119 L172 123 M174 147 L166 150 M86 132 L96 136" stroke-width="4"/>
+            </g>
+            <path d="M106 140 Q119 136 130 142 Q145 134 155 141 Q155 160 131 163 Q107 161 106 140Z" fill="url(#cat-sleep-halfSide-white-fur)"/>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-sleep-halfSide-ear)" stroke="none"/>
+          <g fill="url(#cat-sleep-halfSide-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b4c58a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#b7816b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 <!-- Cat 2: replace only this button’s SVG to change the second cat. -->
 <button id="cat-2" aria-label="White cat. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -211,6 +461,158 @@
 <g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 <g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_2</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-curled-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-curled-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-curled-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-curled-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-curled-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-curled-c2-face-clip"><use href="#cat-2-sleep-curled-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-curled-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-curled-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-curled-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-2-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-2-sleep-curled-sleep-body)" stroke="none"></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-2-sleep-curled-c2-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-curled-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-curled-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-curled-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-side-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-side-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-side-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-side-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-side-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-side-c2-face-clip"><use href="#cat-2-sleep-side-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-side-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-side-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-side-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-2-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-2-sleep-side-sleep-body)" stroke="none"></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-2-sleep-side-c2-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-side-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-side-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-side-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-paws-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-paws-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-paws-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-paws-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-paws-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-paws-c2-face-clip"><use href="#cat-2-sleep-paws-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-paws-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-paws-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-paws-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-2-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-2-sleep-paws-sleep-body)" stroke="none"></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-2-sleep-paws-c2-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-2-sleep-paws-c2-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-paws-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-paws-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-paws-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-belly-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-belly-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-belly-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-belly-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-belly-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-belly-c2-face-clip"><use href="#cat-2-sleep-belly-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-belly-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-belly-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-belly-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-2-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-2-sleep-belly-sleep-body)" stroke="none"></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="url(#cat-2-sleep-belly-c2-white-fur)" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-2-sleep-belly-c2-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-belly-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-belly-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-belly-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-2-sleep-halfSide-c2-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#fffefa"/><stop offset="1" stop-color="#eeeae4"/>
+      </linearGradient>
+      <linearGradient id="cat-2-sleep-halfSide-c2-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-2-sleep-halfSide-c2-ear" x2="0" y2="1">
+        <stop stop-color="#dcb9b5"/><stop offset="1" stop-color="#f1dfd9"/>
+      </linearGradient>
+      <clipPath id="cat-2-sleep-halfSide-c2-body-clip"><use href="#c2-body-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-halfSide-c2-tail-clip"><use href="#c2-tail-shape"/></clipPath>
+      <clipPath id="cat-2-sleep-halfSide-c2-face-clip"><use href="#cat-2-sleep-halfSide-c2-face-shape"/></clipPath>
+      <filter id="cat-2-sleep-halfSide-c2-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-2-sleep-halfSide-c2-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-2-sleep-halfSide-c2-fur)" stroke="#e3ddd4" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#e3ddd4" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#f4f0e9" stroke-width="14" stroke-linecap="round"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-2-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-2-sleep-halfSide-sleep-body)" stroke="none"></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#e3ddd4" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-2-sleep-halfSide-c2-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#e3ddd4" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-2-sleep-halfSide-c2-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-2-sleep-halfSide-c2-ear)" stroke="none"/>
+          <g fill="url(#cat-2-sleep-halfSide-c2-white-fur)" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#c99e9f" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 <!-- Cat 3: independent grey-brown tabby artwork. -->
 <button id="cat-3" aria-label="Grey-brown tabby cat. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -289,11 +691,213 @@
 <path d="M92 83 L103 92 L93 99Z M167 83 L155 93 L168 99Z" fill="#d2b1a3" stroke="none"/>
 <path d="M112 121 Q122 117 130 123 Q143 118 150 123 Q148 138 131 139 Q114 137 112 121Z" fill="#ded0b4" stroke="none"/><g fill="none" stroke="#645b52" stroke-width="2" stroke-linecap="round"><path d="M103 115 Q109 108 115 115 M145 115 Q151 108 157 115"/></g>
 <path d="M125 123 Q130 120 135 123 L130 127Z" fill="#b7816b" stroke="none"/><path d="M130 127 v3 q-5 5 -9 0 M130 130 q5 5 9 0" fill="none" stroke="#a19387"/>
-<g class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#494033" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
-<g class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#494033" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
-<g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
-<g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#aa9573" class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#494033" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#aa9573" class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#494033" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#aa9573" class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#aa9573" class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_3</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-curled-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-curled-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-curled-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-curled-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-curled-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-curled-c3-face-clip"><use href="#cat-3-sleep-curled-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-curled-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-curled-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-curled-c3-fur)" stroke="#82715a" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-3-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-3-sleep-curled-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-3-sleep-curled-c3-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#82715a" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-curled-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-curled-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-curled-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-curled-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-side-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-side-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-side-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-side-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-side-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-side-c3-face-clip"><use href="#cat-3-sleep-side-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-side-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-side-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-side-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-3-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-3-sleep-side-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#82715a" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#82715a" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#82715a" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-3-sleep-side-c3-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#82715a" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-side-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-side-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-side-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-side-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-paws-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-paws-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-paws-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-paws-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-paws-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-paws-c3-face-clip"><use href="#cat-3-sleep-paws-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-paws-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-paws-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-paws-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-3-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-3-sleep-paws-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-3-sleep-paws-c3-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#82715a" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-3-sleep-paws-c3-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#82715a" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-paws-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-paws-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-paws-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-paws-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-belly-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-belly-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-belly-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-belly-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-belly-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-belly-c3-face-clip"><use href="#cat-3-sleep-belly-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-belly-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-belly-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-belly-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-3-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-3-sleep-belly-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="#b7a17d" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#82715a" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#82715a" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#82715a" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-3-sleep-belly-c3-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#82715a" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-belly-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-belly-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-belly-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-belly-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-3-sleep-halfSide-c3-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#aa9573"/><stop offset="1" stop-color="#88775d"/>
+      </linearGradient>
+      <linearGradient id="cat-3-sleep-halfSide-c3-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-3-sleep-halfSide-c3-ear" x2="0" y2="1">
+        <stop stop-color="#ad9184"/><stop offset="1" stop-color="#d4bba7"/>
+      </linearGradient>
+      <clipPath id="cat-3-sleep-halfSide-c3-body-clip"><use href="#c3-body-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-halfSide-c3-tail-clip"><use href="#c3-tail-shape"/></clipPath>
+      <clipPath id="cat-3-sleep-halfSide-c3-face-clip"><use href="#cat-3-sleep-halfSide-c3-face-shape"/></clipPath>
+      <filter id="cat-3-sleep-halfSide-c3-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-3-sleep-halfSide-c3-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-3-sleep-halfSide-c3-fur)" stroke="#82715a" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#82715a" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#9c8869" stroke-width="14" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#494033" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-3-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-3-sleep-halfSide-sleep-body)" stroke="none"><g fill="none" stroke="#494033" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#82715a" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#82715a" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#82715a" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-3-sleep-halfSide-c3-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#82715a" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-3-sleep-halfSide-c3-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-3-sleep-halfSide-c3-face-clip)" stroke="none">
+            <path d="M98 76 Q129 68 158 78 L148 90 L139 85 L130 93 L120 84 L111 92Z" fill="#514939"/>
+            <path d="M74 58 L84 57 L104 81 L97 86Z M158 82 L180 56 L187 65 L180 91 L176 67Z" fill="#60523e"/>
+            <path d="M114 151 Q130 154 147 150 Q146 169 130 170 Q115 167 114 151Z" fill="url(#cat-3-sleep-halfSide-c3-white-fur)"/>
+            <path d="M105 139 Q118 134 130 141 Q143 135 155 140 Q155 155 131 157 Q108 156 105 139Z" fill="#ded0b4"/>
+            <g fill="none" stroke="#403c32" stroke-linecap="round">
+              <path d="M108 79 Q110 94 119 107 L129 95 L140 106 Q148 91 150 80 M129 79 L129 95" stroke-width="4"/>
+              <path d="M80 105 L96 112 M76 118 L93 122 M79 133 L95 136 M84 146 L98 146 M178 105 L164 112 M183 118 L167 122 M182 134 L167 137 M174 146 L163 147" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-3-sleep-halfSide-c3-ear)" stroke="none"/>
+          <g fill="#dfd0b1" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#b8ba91" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#af846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 <!-- Cat 4: independent dark tabby artwork. -->
 <button id="cat-4" aria-label="Dark grey-brown tabby cat with a white chest spot. Click to surprise, double-click for a heart, hold the head to pet.">
@@ -373,13 +977,218 @@
 <path d="M92 83 L103 92 L93 99Z M167 83 L155 93 L168 99Z" fill="#d2b1a3" stroke="none"/>
 <path d="M112 121 Q122 117 130 123 Q143 118 150 123 Q148 138 131 139 Q114 137 112 121Z" fill="#bca98a" stroke="none"/><g fill="none" stroke="#645b52" stroke-width="2" stroke-linecap="round"><path d="M103 115 Q109 108 115 115 M145 115 Q151 108 157 115"/></g>
 <path d="M125 123 Q130 120 135 123 L130 127Z" fill="#b7816b" stroke="none"/><path d="M130 127 v3 q-5 5 -9 0 M130 130 q5 5 9 0" fill="none" stroke="#a19387"/>
-<g class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#484439" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
-<g class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#484439" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
-<g class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
-<g class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#8f8470" class="belly-paw"><path d="M98 152 Q79 139 88 131 Q99 125 113 150 Q117 164 107 168 Q98 170 98 152Z"/><path d="M91 151 l10 -4 M98 160 l9 -4" fill="none" stroke="#484439" stroke-width="3"/><ellipse cx="98" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#8f8470" class="belly-paw" style="animation-delay:-.6s"><path d="M160 152 Q180 138 171 130 Q161 125 147 150 Q143 164 153 168 Q162 170 160 152Z"/><path d="M158 147 l10 4 M151 157 l9 4" fill="none" stroke="#484439" stroke-width="3"/><ellipse cx="161" cy="142" rx="5" ry="6" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#8f8470" class="belly-paw"><ellipse cx="108" cy="222" rx="16" ry="20" transform="rotate(22 108 222)"/><ellipse cx="108" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
+<g fill="#8f8470" class="belly-paw" style="animation-delay:-.8s"><ellipse cx="153" cy="222" rx="16" ry="20" transform="rotate(-22 153 222)"/><ellipse cx="153" cy="223" rx="8" ry="10" fill="#d9b4a8" stroke="none"/></g>
 </g></svg><span class="cat-label" aria-hidden="true">CAT_4</span>
+
+<!-- Dedicated sleep poses; sitting and active belly artwork stay unchanged. -->
+<svg class="sleep-pose" data-sleep-art="curled" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-curled-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-curled-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-curled-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-curled-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-curled-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-curled-c4-face-clip"><use href="#cat-4-sleep-curled-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-curled-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-curled-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-curled-c4-fur)" stroke="#625b4f" stroke-width="1.2"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/><clipPath id="cat-4-sleep-curled-sleep-body"><path d="M91 179 C106 151 174 149 197 178 C221 209 201 240 163 244 C116 248 79 224 91 179Z"/></clipPath><g clip-path="url(#cat-4-sleep-curled-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="111" cy="232" rx="15" ry="8" transform="rotate(0 111 232)" fill="url(#cat-4-sleep-curled-c4-fur)"/><path d="M108 233 v3 M113 233 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(106 207) rotate(26) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-curled-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-curled-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-curled-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g><g class="sleep-tail"><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M201 205 C205 234 166 249 132 241 Q110 237 102 228" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="side" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-side-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-side-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-side-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-side-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-side-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-side-c4-face-clip"><use href="#cat-4-sleep-side-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-side-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-side-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-side-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M192 208 Q232 210 227 231 Q220 243 201 238" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/><clipPath id="cat-4-sleep-side-sleep-body"><path d="M91 203 C107 177 164 174 195 192 Q215 209 196 228 Q157 245 108 230Z"/></clipPath><g clip-path="url(#cat-4-sleep-side-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="167" cy="239" rx="23" ry="8" transform="rotate(5 167 239)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M164 240 v3 M169 240 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="191" cy="231" rx="19" ry="9" transform="rotate(-9 191 231)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M188 232 v3 M193 232 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="82" cy="237" rx="24" ry="8" transform="rotate(0 82 237)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M79 238 v3 M84 238 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="62" cy="228" rx="17" ry="8" transform="rotate(-10 62 228)" fill="url(#cat-4-sleep-side-c4-fur)"/><path d="M59 229 v3 M64 229 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(76 199) rotate(-18) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-side-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-side-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-side-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="paws" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-paws-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-paws-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-paws-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-paws-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-paws-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-paws-c4-face-clip"><use href="#cat-4-sleep-paws-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-paws-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-paws-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-paws-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M185 218 Q210 245 165 245 L127 245" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/><clipPath id="cat-4-sleep-paws-sleep-body"><path d="M109 214 C111 170 168 157 189 190 Q206 213 185 236 L109 237Z"/></clipPath><g clip-path="url(#cat-4-sleep-paws-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="86" cy="241" rx="20" ry="8" transform="rotate(0 86 241)" fill="url(#cat-4-sleep-paws-c4-fur)"/><path d="M83 242 v3 M88 242 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="118" cy="241" rx="21" ry="8" transform="rotate(0 118 241)" fill="url(#cat-4-sleep-paws-c4-fur)"/><path d="M115 242 v3 M120 242 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(101 214) rotate(0) scale(0.7) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-paws-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-paws-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-paws-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="belly" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-belly-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-belly-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-belly-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-belly-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-belly-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-belly-c4-face-clip"><use href="#cat-4-sleep-belly-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-belly-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-belly-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-belly-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M184 214 Q218 225 224 207" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M184 214 Q218 225 224 207" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/><clipPath id="cat-4-sleep-belly-sleep-body"><path d="M100 207 C95 180 150 161 181 177 Q209 194 194 218 Q154 247 113 229Z"/></clipPath><g clip-path="url(#cat-4-sleep-belly-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="148" cy="204" rx="35" ry="22" transform="rotate(-18 148 204)" fill="#b3a58d" stroke="none"/><path d="M138 201 Q149 192 160 199 L164 209 Q150 225 139 215Z" fill="url(#cat-4-sleep-belly-c4-white-fur)" stroke="none"/><ellipse cx="173" cy="221" rx="16" ry="11" transform="rotate(22 173 221)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M170 222 v3 M175 222 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="188" cy="196" rx="15" ry="11" transform="rotate(-22 188 196)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M185 197 v3 M190 197 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="111" cy="178" rx="11" ry="17" transform="rotate(26 111 178)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M108 179 v3 M113 179 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="140" cy="175" rx="11" ry="17" transform="rotate(-15 140 175)" fill="url(#cat-4-sleep-belly-c4-fur)"/><path d="M137 176 v3 M142 176 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(83 204) rotate(-55) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-belly-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-belly-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-belly-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
+<svg class="sleep-pose" data-sleep-art="halfSide" viewBox="0 0 260 290" aria-hidden="true"><defs>
+      <linearGradient id="cat-4-sleep-halfSide-c4-fur" x1="0" y1="0" x2=".8" y2="1">
+        <stop stop-color="#8f8470"/><stop offset="1" stop-color="#6d6557"/>
+      </linearGradient>
+      <linearGradient id="cat-4-sleep-halfSide-c4-white-fur" x1="0" y1="0" x2=".8" y2="1"><stop stop-color="#fffaf0"/><stop offset="1" stop-color="#e9dfcd"/></linearGradient>
+      <linearGradient id="cat-4-sleep-halfSide-c4-ear" x2="0" y2="1">
+        <stop stop-color="#91796f"/><stop offset="1" stop-color="#b19a87"/>
+      </linearGradient>
+      <clipPath id="cat-4-sleep-halfSide-c4-body-clip"><use href="#c4-body-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-halfSide-c4-tail-clip"><use href="#c4-tail-shape"/></clipPath>
+      <clipPath id="cat-4-sleep-halfSide-c4-face-clip"><use href="#cat-4-sleep-halfSide-c4-face-shape"/></clipPath>
+      <filter id="cat-4-sleep-halfSide-c4-shadow" x="-40%" y="-30%" width="180%" height="180%">
+        <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#958675" flood-opacity=".14"/>
+      </filter>
+      <filter id="cat-4-sleep-halfSide-c4-blur"><feGaussianBlur stdDeviation="5"/></filter>
+    </defs><ellipse cx="140" cy="250" rx="85" ry="6" fill="#9d8c76" opacity=".12"/><g class="sleep-breath" fill="url(#cat-4-sleep-halfSide-c4-fur)" stroke="#625b4f" stroke-width="1.2"><g class="sleep-tail"><path d="M184 197 Q217 190 228 204" fill="none" stroke="#625b4f" stroke-width="17" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#807763" stroke-width="14" stroke-linecap="round"/><path d="M184 197 Q217 190 228 204" fill="none" stroke="#484439" stroke-width="14" stroke-dasharray="3 14" stroke-linecap="butt" opacity=".65"/></g><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/><clipPath id="cat-4-sleep-halfSide-sleep-body"><path d="M97 214 C99 180 155 163 189 186 Q211 213 190 231 Q145 249 111 229Z"/></clipPath><g clip-path="url(#cat-4-sleep-halfSide-sleep-body)" stroke="none"><g fill="none" stroke="#484439" stroke-width="4" stroke-linecap="round"><path d="M113 163 q4 15 15 20 M137 159 q0 16 12 21 M162 158 q-5 16 8 23 M187 170 q-12 10 -4 23 M202 198 l-16 4 M107 220 l14 5 M173 229 l12 -5"/></g></g><ellipse cx="184" cy="240" rx="22" ry="9" transform="rotate(12 184 240)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M181 241 v3 M186 241 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="157" cy="227" rx="20" ry="10" transform="rotate(-12 157 227)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M154 228 v3 M159 228 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="107" cy="241" rx="20" ry="8" transform="rotate(23 107 241)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M104 242 v3 M109 242 v3" stroke="#625b4f" opacity=".5"/><ellipse cx="76" cy="231" rx="16" ry="8" transform="rotate(-12 76 231)" fill="url(#cat-4-sleep-halfSide-c4-fur)"/><path d="M73 232 v3 M78 232 v3" stroke="#625b4f" opacity=".5"/><g transform="translate(84 204) rotate(-32) scale(0.65) translate(-130 -125)"><g class="sleep-face">
+          <path id="cat-4-sleep-halfSide-c4-face-shape" class="ear-outline" d="M76 105 Q70 82 77 60 Q80 54 85 59 L109 80 Q130 74 151 80 L175 59 Q181 54 183 63 Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z"/>
+          
+          <g clip-path="url(#cat-4-sleep-halfSide-c4-face-clip)" stroke="none">
+            <path d="M72 57 L84 57 L105 82 L96 89Z M158 82 L181 56 L187 69 L180 92 L176 67Z" fill="#504c41"/>
+            <path d="M107 141 Q117 135 130 141 Q144 136 155 142 Q154 155 132 157 Q108 158 107 141Z" fill="#bca98a"/>
+            <path d="M121 154 Q130 157 141 154 L137 162 L125 162Z" fill="#d5c8af"/>
+            <g fill="none" stroke="#454137" stroke-linecap="round">
+              <path d="M109 80 L117 102 L128 91 L140 102 L150 80 M129 79 L129 91" stroke-width="4"/>
+              <path d="M80 104 L96 112 M77 118 L92 124 M80 134 L96 138 M86 146 L101 148 M179 105 L164 112 M183 119 L169 124 M180 134 L165 138 M174 146 L160 149" stroke-width="3.5"/>
+            </g>
+          </g>
+          <path class="ear-insides" d="M81 69 L98 84 L80 94Z M178 69 L161 84 L180 94Z" fill="url(#cat-4-sleep-halfSide-c4-ear)" stroke="none"/>
+          <g fill="#d2c4a5" stroke="none"><ellipse cx="106" cy="125" rx="11" ry="12"/><ellipse cx="154" cy="125" rx="11" ry="12"/></g>
+          <g class="eyes" fill="#514c47" stroke="none">
+            <g class="blink"><g fill="#bec18a" stroke="#625c43" stroke-width="1.5"><ellipse cx="106" cy="125" rx="8" ry="9"/><ellipse cx="154" cy="125" rx="8" ry="9"/></g><g class="pupils"><ellipse cx="106" cy="125" rx="2.8" ry="6"/><ellipse cx="154" cy="125" rx="2.8" ry="6"/></g></g>
+          </g>
+          <g class="sleep-eyes" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"><path d="M100 127 Q106 132 112 127 M148 127 Q154 132 160 127"/></g>
+          <path class="happy-eyes" d="M100 128 Q106 120 112 128 M148 128 Q154 120 160 128" fill="none" stroke="#645b52" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M126 138 Q130 136 134 138 L130 142Z" fill="#a0846b" stroke="none"/>
+          <path class="mouth" d="M130 142 V145 Q126 150 123 146 M130 145 Q134 150 137 146" fill="none" stroke="#a19387" stroke-linecap="round"/>
+          <ellipse class="mouth-oh" cx="130" cy="148" rx="3" ry="4" fill="#9b857a" stroke="none"/>
+          <path d="M77 133 L91 136 M77 143 L91 142 M169 136 L183 133 M169 142 L183 143" stroke="#d3c9bd" stroke-linecap="round"/>
+        </g></g></g></svg>
 </button>
 </main>
+<svg id="yarn-ball" viewBox="0 0 40 40" role="button" tabindex="0" aria-label="Yarn ball. Tap to roll or drag to move." hidden>
+  <ellipse cx="20" cy="35" rx="13" ry="2.5" fill="#b6a898" opacity=".16"/>
+  <circle cx="19" cy="19" r="14" fill="#cfaca0" stroke="#b68e82" stroke-width=".9"/>
+  <g fill="none" stroke="#f0d5c9" stroke-width="1.1" stroke-linecap="round">
+    <path d="M8 11 Q23 10 30 24 M6 17 Q20 15 27 29 M7 24 Q16 22 22 32 M15 6 Q8 18 14 30 M23 6 Q15 14 19 20 M29 11 Q24 13 23 18"/>
+  </g>
+  <path d="M29 28 Q34 31 32 34 Q29 37 37 35" fill="none" stroke="#b68e82" stroke-width="1.1" stroke-linecap="round"/>
+</svg>
 <script>
   // IDs follow the original visual order: calico, white, tabby, tabby.
   // Times are milliseconds; eye/ear ranges are SVG pixels; tilt is degrees.
@@ -391,12 +1200,218 @@
   };
   // Edit these four names here. Trust is session-only; all probabilities are 0–1.
   const catConfig = {
-    cat: { name: 'CAT_1', trust: .35, boldness: .4, playfulness: .45, bellyRollChance: .42, interactionCount: 0 },
-    'cat-2': { name: 'CAT_2', trust: .08, boldness: .12, playfulness: .25, bellyRollChance: .15, interactionCount: 0 },
-    'cat-3': { name: 'CAT_3', trust: .55, boldness: .7, playfulness: .8, bellyRollChance: .7, interactionCount: 0 },
-    'cat-4': { name: 'CAT_4', trust: .75, boldness: 1, playfulness: 1, bellyRollChance: .94, interactionCount: 0 }
+    cat: { name: '六六', trust: .35, boldness: .4, playfulness: .45, bellyRollChance: .42, interactionCount: 0 },
+    'cat-2': { name: 'miumiu', trust: .08, boldness: .12, playfulness: .25, bellyRollChance: .15, interactionCount: 0 },
+    'cat-3': { name: '毛毛', trust: .55, boldness: .7, playfulness: .8, bellyRollChance: .7, interactionCount: 0 },
+    'cat-4': { name: '小黑', trust: .75, boldness: 1, playfulness: 1, bellyRollChance: .94, interactionCount: 0 }
   };
   const rollSettings = { holdMs: 1100, clicks: 3, clickWindowMs: 2400, maxMovePx: 12, cooldownMs: 6500, stayMs: 3200 };
+  // New behavior settings, in the same left-to-right order as catConfig.
+  const extraBehavior = {
+    cat: { groomingChance: .22, canStand: true, standStretch: 1.02, sleepPoseWeights: { curled: 35, side: 20, paws: 35, belly: 5, halfSide: 5 } },
+    'cat-2': { groomingChance: .1, canStand: false, standStretch: 1, sleepPoseWeights: { curled: 49, side: 15, paws: 32, belly: 1, halfSide: 3 } },
+    'cat-3': { groomingChance: .48, canStand: true, standStretch: 1.07, sleepPoseWeights: { curled: 15, side: 30, paws: 15, belly: 15, halfSide: 25 } },
+    'cat-4': { groomingChance: .38, canStand: true, standStretch: 1.12, sleepPoseWeights: { curled: 5, side: 25, paws: 5, belly: 40, halfSide: 25 } }
+  };
+  const extraSettings = { groomingClicksRequired: 3, groomingDuration: 2600, headTapsRequired: 5, headTapWindowMs: 3000, standDuration: 2400, settleMs: 700 };
+  function chooseSleepPose(weights) {
+    const entries = Object.entries(weights).filter(([, weight]) => Number.isFinite(weight) && weight > 0);
+    const total = entries.reduce((sum, [, weight]) => sum + weight, 0);
+    let pick = Math.random() * total;
+    for (const [pose, weight] of entries) { pick -= weight; if (pick < 0) return pose; }
+    return entries.length ? entries[entries.length - 1][0] : 'paws';
+  }
+  // Toy distances are CSS pixels from the visible sitting body, chances are 0–1.
+  const toyBehavior = {
+    cat:     { radius: 145, watchMs: 950, pawChance: .12, shyDistance: 65, lean: 2, nudge: 3, toyInterest: .25, startleSensitivity: .95, joinChance: .05, doubleTapChance: 0 },
+    'cat-2': { radius: 210, watchMs: 1400, pawChance: .08, shyDistance: 55, lean: 1.5, nudge: 2, toyInterest: .12, startleSensitivity: .12, joinChance: .08, doubleTapChance: 0 },
+    'cat-3': { radius: 190, watchMs: 240, pawChance: .95, shyDistance: 0, lean: 3, nudge: 5, toyInterest: 1.5, startleSensitivity: 0, joinChance: .95, doubleTapChance: .1 },
+    'cat-4': { radius: 210, watchMs: 90, pawChance: 1, shyDistance: 0, lean: 4, nudge: 7, toyInterest: 2.5, startleSensitivity: 0, joinChance: .95, doubleTapChance: .65 }
+  };
+  const toySettings = { wakeDistance: 35, reachDistance: 60, rollPx: 55, dragAttentionMs: 220, maxMovePx: 10, tapMs: 500, reactionMs: 1400 };
+  // Only one social observer; only the close playful pair may share a toy turn.
+  const socialBehavior = {
+    cat: { noticeChance: .28, responseMs: 280, nervousChance: .65 },
+    'cat-2': { noticeChance: .4, responseMs: 700, nervousChance: .08 },
+    'cat-3': { noticeChance: .85, responseMs: 100, nervousChance: 0 },
+    'cat-4': { noticeChance: .92, responseMs: 70, nervousChance: 0 }
+  };
+  const closePair = { 'cat-3': 'cat-4', 'cat-4': 'cat-3' };
+  const socialSettings = { pairNoticeChance: .95, pairJoinChance: .78, joinDelayMs: 420, pairDistance: 340 };
+  // Petting times are ms; purrIntensity and headLower are tiny SVG-pixel movements.
+  // Tolerance controls acceptance of repeated head touches within repeatWindowMs.
+  const pettingBehavior = {
+    cat: { pettingTolerance: .35, relaxDelay: 950, purrIntensity: .18, affectionChance: .25, pettingDuration: 4200, flinchChance: .55, watchChance: 0, headLower: 2, happyOpacity: .7 },
+    'cat-2': { pettingTolerance: .7, relaxDelay: 700, purrIntensity: .1, affectionChance: .15, pettingDuration: 4000, flinchChance: 0, watchChance: .2, headLower: 1.5, happyOpacity: .55 },
+    'cat-3': { pettingTolerance: .85, relaxDelay: 400, purrIntensity: .25, affectionChance: .55, pettingDuration: 5200, flinchChance: 0, watchChance: 0, headLower: 2.5, happyOpacity: .85 },
+    'cat-4': { pettingTolerance: .98, relaxDelay: 180, purrIntensity: .35, affectionChance: .8, pettingDuration: 7500, flinchChance: 0, watchChance: 0, headLower: 3, happyOpacity: 1 }
+  };
+  const pettingSettings = { holdMs: 350, repeatWindowMs: 3000, heartAfterMs: 2200, settleMs: 650, playfulChance: .35 };
+  // A chain belongs to one user placement. Internal passes never renew its budget.
+  const toyChainSettings = { maxExchanges: 3, nearbyPx: 340, travelMs: 650, pairWeight: 8 };
+  const toyChainBehavior = {
+    cat: { passChance: .12, receiveChance: .12 },
+    'cat-2': { passChance: .06, receiveChance: .06 },
+    'cat-3': { passChance: .9, receiveChance: .95 },
+    'cat-4': { passChance: .95, receiveChance: 1 }
+  };
+  let toyChain = { remaining: 0, exchanges: 0, members: [], inFlight: false }, chainArrival, chainTrack;
+  function resetToyChain() {
+    clearTimeout(chainArrival); clearTimeout(chainTrack);
+    toyChain = { remaining: 0, exchanges: 0, members: [], inFlight: false };
+  }
+  const toyCats = [];
+  let toyJoinTimer;
+  const yarn = document.querySelector('#yarn-ball');
+  let yarnPoint = null, yarnGesture = null, toyVersion = 0, yarnDrag = null, ballAnimation, lastDragAttention = -Infinity;
+  function toyDistance(cat, point) {
+    const r = cat.getBoundingClientRect();
+    // Ignore transparent margins, measuring from the existing visible body envelope.
+    return Math.hypot(Math.max(r.left + 65 - point.x, 0, point.x - r.left - 200),
+      Math.max(r.top + 60 - point.y, 0, point.y - r.top - 250));
+  }
+  function clampYarn(point) {
+    const width=document.documentElement?.clientWidth || window.innerWidth, height=document.documentElement?.clientHeight || window.innerHeight;
+    return { x: Math.max(20, Math.min(width - 20, point.x)), y: Math.max(20, Math.min(height - 20, point.y)) };
+  }
+  function positionYarn(point) {
+    yarn.style.left = `${point.x}px`; yarn.style.top = `${point.y}px`;
+  }
+  function moveYarn(point, animate = false, duration = 420) {
+    const old = yarnPoint; yarnPoint = clampYarn(point); ballAnimation?.cancel();
+    positionYarn(yarnPoint); yarn.removeAttribute('hidden');
+    if (animate && old && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      ballAnimation = yarn.animate([
+        { transform: `translate(calc(-50% + ${old.x-yarnPoint.x}px), calc(-50% + ${old.y-yarnPoint.y}px)) rotate(-35deg)` },
+        { transform: 'translate(-50%, calc(-50% - 2px)) rotate(-8deg)', offset: .7 },
+        { transform: 'translate(-50%, -50%) rotate(0deg)' }
+      ], { duration, easing: 'ease-out' });
+    }
+  }
+  function cancelToyTurn() {
+    resetToyChain();
+    ++toyVersion; clearTimeout(toyJoinTimer); toyCats.forEach(c => c.cancel());
+  }
+  function rollYarn() {
+    if (!yarnPoint) return;
+    const direction = yarnPoint.x > window.innerWidth - 90 ? -1 : 1;
+    moveYarn({ x: yarnPoint.x + direction * toySettings.rollPx, y: yarnPoint.y }, true);
+    placeYarn(yarnPoint);
+  }
+  yarn.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault(); event.stopPropagation();
+    const visibleBall = yarn.getBoundingClientRect();
+    cancelToyTurn(); moveYarn({x:visibleBall.left+visibleBall.width/2,y:visibleBall.top+visibleBall.height/2});
+    yarnDrag = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: yarnPoint.x-event.clientX, dy: yarnPoint.y-event.clientY, moved: false };
+    yarn.setPointerCapture(event.pointerId);
+  });
+  yarn.addEventListener('pointermove', event => {
+    if (!yarnDrag || yarnDrag.id !== event.pointerId) return;
+    event.preventDefault(); event.stopPropagation();
+    if (Math.hypot(event.clientX-yarnDrag.x,event.clientY-yarnDrag.y)>4) yarnDrag.moved=true;
+    if (!yarnDrag.moved) return;
+    moveYarn({x:event.clientX+yarnDrag.dx,y:event.clientY+yarnDrag.dy});
+    if (performance.now()-lastDragAttention > toySettings.dragAttentionMs) { lastDragAttention=performance.now(); placeYarn(yarnPoint); }
+    toyCats.forEach(c=>c.track(yarnPoint));
+  });
+  yarn.addEventListener('pointerup', event => {
+    if (!yarnDrag || yarnDrag.id !== event.pointerId) return;
+    event.preventDefault(); event.stopPropagation();
+    const dragged=yarnDrag.moved; yarnDrag=null;
+    if (yarn.hasPointerCapture(event.pointerId)) yarn.releasePointerCapture(event.pointerId);
+    if (dragged) placeYarn(yarnPoint); else rollYarn();
+  });
+  function cancelYarnDrag() { if (yarnDrag) { const id=yarnDrag.id; yarnDrag=null; if (yarn.hasPointerCapture(id)) yarn.releasePointerCapture(id); cancelToyTurn(); } }
+  yarn.addEventListener('pointercancel', cancelYarnDrag);
+  yarn.addEventListener('lostpointercapture', cancelYarnDrag);
+  yarn.addEventListener('keydown', event => { if (event.key==='Enter'||event.key===' ') { event.preventDefault(); rollYarn(); } });
+  yarn.addEventListener('contextmenu', event=>event.preventDefault());
+  window.addEventListener('blur', () => { cancelYarnDrag(); cancelToyTurn(); });
+  document.addEventListener('visibilitychange',()=>{if(document.hidden){cancelYarnDrag();cancelToyTurn();}});
+  function placeYarn(point) {
+    point = clampYarn(point);
+    resetToyChain();
+    const version = ++toyVersion;
+    toyCats.forEach(c => c.cancel());
+    yarnPoint = point; yarn.removeAttribute('hidden'); positionYarn(point);
+    clearTimeout(toyJoinTimer);
+    const candidates = toyCats.map(c => ({ c, distance: toyDistance(c.cat, point) }))
+      .filter(({c, distance}) => distance <= c.settings.radius && c.available(distance));
+    // Proximity still matters; boldness decides who leads when several cats can see it.
+    const weighted = candidates.map(n => ({ ...n, weight: n.c.settings.toyInterest / (1 + n.distance / 70) }));
+    let pick = Math.random() * weighted.reduce((sum, n) => sum + n.weight, 0);
+    const leader = weighted.find(n => (pick -= n.weight) < 0) || weighted[weighted.length - 1];
+    if (!leader || !leader.c.react(point, leader.distance, version)) return;
+    toyChain.remaining = 1 + Math.min(toyChainSettings.maxExchanges - 1, Math.floor(Math.random() * toyChainSettings.maxExchanges));
+    toyChain.members = [leader.c.cat.id];
+    const partner = candidates.find(n => n.c.cat.id === closePair[leader.c.cat.id]);
+    if (!partner || Math.random() >= partner.c.settings.joinChance) return;
+    const a = leader.c.cat.getBoundingClientRect(), b = partner.c.cat.getBoundingClientRect();
+    if (Math.hypot(a.left - b.left, a.top - b.top) > socialSettings.pairDistance) return;
+    toyJoinTimer = setTimeout(() => {
+      if (version !== toyVersion || !yarnPoint || !partner.c.available(toyDistance(partner.c.cat, yarnPoint), true)) return;
+      if (partner.c.react(yarnPoint, toyDistance(partner.c.cat, yarnPoint), version)) toyChain.members = [leader.c.cat.id, partner.c.cat.id];
+    }, socialSettings.joinDelayMs);
+
+  }
+  function passYarn(source, version) {
+    if (version !== toyVersion || yarnDrag || !yarnPoint || toyChain.inFlight || toyChain.remaining <= 0 || Math.random() >= toyChainBehavior[source.id].passChance) return false;
+    const from = source.getBoundingClientRect();
+    const options = toyCats.filter(c => c.cat !== source && c.canReceive() &&
+      (toyChain.members.length < 2 || toyChain.members.includes(c.cat.id)))
+      .map(c => {
+        const r = c.cat.getBoundingClientRect(), side = Math.sign(from.left - r.left) || 1;
+        const target = { x: r.left + 130 + side * 36, y: r.top + 251 };
+        const bounded = clampYarn(target);
+        return { c, target, visible: Math.abs(bounded.x-target.x)<1 && Math.abs(bounded.y-target.y)<1,
+          distance: Math.hypot(r.left-from.left,r.top-from.top), weight: closePair[source.id] === c.cat.id ? toyChainSettings.pairWeight : 1 };
+      }).filter(n => n.visible && n.distance <= toyChainSettings.nearbyPx);
+    if (!options.length) return false;
+    let pick = Math.random() * options.reduce((sum,n)=>sum+n.weight,0);
+    const receiver = options.find(n => (pick -= n.weight) < 0) || options[options.length-1];
+    if (!receiver.c.reserve(receiver.target)) return false;
+    clearTimeout(toyJoinTimer);
+    toyChain.members = [source.id, receiver.c.cat.id];
+    toyChain.remaining--; toyChain.exchanges++; toyChain.inFlight = true;
+    const start = { ...yarnPoint }, travel = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : toyChainSettings.travelMs;
+    moveYarn(receiver.target, true, travel);
+    // Match the existing easing approximately while eyes follow the travelling ball.
+    let step = 0;
+    const steps = Math.ceil(travel / 65);
+    const follow = () => {
+      if (version !== toyVersion || !toyChain.inFlight) return;
+      const fraction = Math.min(++step / steps / .7, 1);
+      const point = { x:start.x+(receiver.target.x-start.x)*fraction, y:start.y+(receiver.target.y-start.y)*fraction };
+      toyCats.forEach(c=>c.track(point));
+      if(step < steps) chainTrack = setTimeout(follow,65);
+    };
+    if (travel > 1) follow();
+    chainArrival = setTimeout(() => {
+      if (version !== toyVersion || yarnDrag) return;
+      clearTimeout(chainTrack); toyChain.inFlight = false;
+      if (!receiver.c.canReceive()) { receiver.c.cancel(); return; }
+      receiver.c.cancel();
+      receiver.c.react(yarnPoint, toyDistance(receiver.c.cat,yarnPoint), version, true);
+    }, travel);
+    return true;
+  }
+  const emptyToyTarget = target => !target.closest('#yarn-ball, button, a, input, textarea, select, [contenteditable]');
+  document.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0 || !emptyToyTarget(event.target)) { yarnGesture = null; return; }
+    yarnGesture = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
+  });
+  document.addEventListener('pointermove', event => {
+    if (yarnGesture && event.pointerId === yarnGesture.id && Math.hypot(event.clientX - yarnGesture.x, event.clientY - yarnGesture.y) > toySettings.maxMovePx) yarnGesture = null;
+  });
+  document.addEventListener('pointercancel', () => { yarnGesture = null; });
+  window.addEventListener('scroll', () => { yarnGesture = null; cancelYarnDrag(); cancelToyTurn(); }, { passive: true });
+  document.addEventListener('pointerup', event => {
+    const press = yarnGesture; yarnGesture = null;
+    if (!press || event.pointerId !== press.id || !emptyToyTarget(event.target) || performance.now() - press.time > toySettings.tapMs || Math.hypot(event.clientX - press.x, event.clientY - press.y) > toySettings.maxMovePx) return;
+    moveYarn({x:event.clientX,y:event.clientY}); placeYarn(yarnPoint);
+  });
+  window.addEventListener('resize', () => { cancelYarnDrag(); cancelToyTurn(); if (yarnPoint) moveYarn(yarnPoint); });
   const companions = [];
   let lastNotice = -Infinity;
   function notify(source, kind) {
@@ -405,17 +1420,43 @@
     const nearby = companions.filter(c => c.cat !== source && c.available())
       .map(c => ({ c, distance: Math.hypot(c.cat.getBoundingClientRect().left - a.left, c.cat.getBoundingClientRect().top - a.top) }))
       .filter(n => n.distance < 620).sort((a, b) => a.distance - b.distance);
-    const observer = nearby.find(n => Math.random() < n.c.cfg.curiosity);
+    const friend = nearby.find(n => n.c.cat.id === closePair[source.id]);
+    const observer = friend && Math.random() < socialSettings.pairNoticeChance ? friend :
+      nearby.find(n => n !== friend && Math.random() < socialBehavior[n.c.cat.id].noticeChance);
     if (observer) { lastNotice = Date.now(); observer.c.notice(a.left + a.width / 2, kind); }
   }
   // Each cat owns its expression, timers, and animation instances.
   function initCat(cat) {
   const cfg = personalities[cat.id];
   const character = catConfig[cat.id];
+  const extra = extraBehavior[cat.id];
+  let mode = '', headTaps = [], headGesture = false, wokeOnPress = false;
+  const busy = () => rolling || mode !== '';
+  cat.style.setProperty('--stand-stretch', extra.standStretch);
   cat.querySelector('.cat-label').textContent = character.name;
-  cat.setAttribute('aria-label', `${character.name}. ${cat.getAttribute('aria-label')} Hold or gently click three times to invite a belly roll.`);
+  cat.setAttribute('aria-label', `${character.name}. ${cat.getAttribute('aria-label')} Hold the body to invite a belly roll; several gentle clicks may invite grooming or a roll.${extra.canStand ? ' Five head taps within three seconds invite a brief stand.' : ''}`);
   const sitting = cat.querySelector('svg');
   const belly = cat.querySelector('.belly-pose');
+  // Clone only the alternate belly artwork, never the original sitting SVG.
+  function copyPose(className) {
+    const pose = belly.cloneNode(true);
+    pose.setAttribute('class', className);
+    pose.querySelectorAll('[id]').forEach(node => {
+      const oldId = node.id, newId = `${oldId}-${className}`;
+      node.id = newId;
+      pose.querySelectorAll('[fill]').forEach(part => {
+        if (part.getAttribute('fill') === `url(#${oldId})`) part.setAttribute('fill', `url(#${newId})`);
+      });
+    });
+    cat.append(pose);
+    return pose;
+  }
+  if (extra.canStand) copyPose('stand-pose');
+  const ns = 'http://www.w3.org/2000/svg';
+  const detail = document.createElementNS(ns, 'svg');
+  detail.setAttribute('class', 'grooming-detail'); detail.setAttribute('viewBox', '0 0 260 290'); detail.setAttribute('aria-hidden', 'true');
+  detail.innerHTML = '<g><path d="M128 147 Q131 157 134 148" fill="#d9a8a0" stroke="#bc9188" stroke-width=".6"/></g>';
+  cat.append(detail);
   let rolling = false, rollCooldown = 0, gentleClicks = [], gesture = null, pointerSample = null, lastLean = -Infinity;
   cat.style.setProperty('--wiggle', `${3 + character.playfulness * 12}deg`);
   cat.style.setProperty('--wiggle-speed', `${1.8 - character.playfulness * .8}s`);
@@ -436,28 +1477,135 @@
     bouncing?.cancel();
     bouncing = bounce.animate([{ transform: 'scale(1)' }, { transform: `scale(${1+amount}, ${1-amount})`, offset: .25 }, { transform: `scale(${1-amount*.6}, ${1+amount})`, offset: .6 }, { transform: 'scale(1)' }], { duration: cfg.speed, easing: 'ease-in-out' });
   }
-  companions.push({ cat, cfg, available: () => !rolling && state === 'awake' && !pressing, notice(x, kind) {
+  const social = socialBehavior[cat.id];
+  companions.push({ cat, cfg, available: () => !busy() && state === 'awake' && !pressing, notice(x, kind) {
     later('notice', () => {
-      if (rolling || state !== 'awake' || pressing) return;
+      if (busy() || state !== 'awake' || pressing) return;
       const direction = Math.sign(x - (cat.getBoundingClientRect().left + 130));
       lookingUntil = Date.now() + 850;
       pupils.style.transform = `translate(${direction * cfg.eye}px, 0px)`;
       ears(direction * cfg.ear, 0);
       cat.style.setProperty('--tilt', `${direction * cfg.tilt * .6}deg`);
-      if (kind === 'click' && cfg.role === 'timid') { setState('surprised'); later('expression', () => setState('awake'), 450); }
+      if (kind === 'click' && Math.random() < social.nervousChance) {
+        setState('surprised'); later('expression', () => setState('awake'), 450);
+        if (!reducedMotion.matches) {
+          bouncing?.cancel();
+          bouncing = bounce.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${-direction * 2}px)`, offset: .4 }, { transform: 'translateX(0)' }], { duration: 650, easing: 'ease-in-out' });
+        }
+      }
       if (kind === 'click' && cfg.role === 'bold') motion(cfg.bounce * .45);
       later('look', () => { pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg'); }, 850);
-    }, cfg.response);
+    }, social.responseMs);
   } });
+  const toy = toyBehavior[cat.id];
+  let toyAnimation, pawAnimation;
+  const paw = document.createElementNS(ns, 'svg');
+  paw.setAttribute('class', 'toy-paw-detail'); paw.setAttribute('viewBox', '0 0 260 290'); paw.setAttribute('aria-hidden', 'true');
+  const pawColors = { cat: ['#c39764','#826d53'], 'cat-2': ['#fffefa','#e3ddd4'], 'cat-3': ['#aa9573','#82715a'], 'cat-4': ['#8f8470','#625b4f'] };
+  const [pawFill,pawStroke]=pawColors[cat.id];
+  paw.innerHTML = `<g fill="${pawFill}" stroke="${pawStroke}" stroke-width="1.2"><path d="M-7 -19 Q0 -24 7 -19 L10 -2 Q12 7 0 8 Q-12 7 -10 -2Z"/><path d="M-4 2 v3 M1 2 v3" fill="none" opacity=".6"/></g>`;
+  cat.append(paw);
+  function trackYarn(point) {
+    if (mode !== 'toy') return;
+    const r=cat.getBoundingClientRect(), dx=point.x-r.left-r.width/2, dy=point.y-r.top-125, length=Math.hypot(dx,dy)||1;
+    pupils.style.transform=`translate(${dx/length*cfg.eye}px, ${dy/length*cfg.eye*.65}px)`;
+    cat.style.setProperty('--tilt', `${Math.sign(dx)*cfg.tilt*.35}deg`);
+  }
+  function tapYarn(version, again = false) {
+    if (version!==toyVersion || mode!=='toy' || state!=='awake' || yarnDrag || toyChain.inFlight || !yarnPoint) return;
+    const r=cat.getBoundingClientRect(), direction=Math.sign(yarnPoint.x-r.left-130)||1;
+    const origin={x:r.left+130+direction*24,y:r.top+240};
+    const dx=yarnPoint.x-origin.x, dy=yarnPoint.y-origin.y, distance=Math.hypot(dx,dy)||1;
+    if (distance>toySettings.reachDistance || Math.abs(dy)>65) return;
+    const reach=Math.min(34, Math.max(6,distance-23));
+    const g=paw.querySelector('g'); g.setAttribute('transform',`translate(${origin.x-r.left} ${origin.y-r.top})`);
+    cat.dataset.toyPaw='true'; pawAnimation?.cancel();
+    if (!reducedMotion.matches) pawAnimation=g.animate([
+      {transform:`translate(${origin.x-r.left}px, ${origin.y-r.top}px)`},
+      {transform:`translate(${origin.x-r.left+dx/distance*reach}px, ${origin.y-r.top+dy/distance*reach}px) rotate(${direction*8}deg)`,offset:.5},
+      {transform:`translate(${origin.x-r.left}px, ${origin.y-r.top}px)`}
+    ],{duration:420,easing:'ease-in-out'});
+    const doubleTap = !again && Math.random()<toy.doubleTapChance;
+    later('pawHit',()=>{
+      if(version!==toyVersion||mode!=='toy'||yarnDrag||!yarnPoint)return;
+      if (!doubleTap && passYarn(cat,version)) return;
+      moveYarn({x:yarnPoint.x+dx/distance*(toy.nudge+8),y:yarnPoint.y+dy/distance*(toy.nudge+8)},true);
+      toyCats.forEach(c=>c.track(yarnPoint));
+    },180);
+    later('pawHide',()=>{delete cat.dataset.toyPaw;pawAnimation?.cancel();},430);
+    if(doubleTap)later('pawAgain',()=>tapYarn(version,true),600);
+  }
+  function cancelToy() {
+    clearTimeout(timers.toyWatch); clearTimeout(timers.toyEnd);
+    ['pawHit','pawHide','pawAgain'].forEach(key=>clearTimeout(timers[key]));
+    delete cat.dataset.toyPaw; pawAnimation?.cancel();
+    toyAnimation?.cancel(); toyAnimation = null;
+    if (mode !== 'toy') return;
+    mode = ''; delete cat.dataset.mode;
+    if (state === 'surprised') setState('awake');
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    activity();
+  }
+  const canReceive = () => !rolling && !pressing && state === 'awake' && (mode === '' || mode === 'toy');
+  toyCats.push({ cat, settings: toy, cancel: cancelToy, track: trackYarn, canReceive,
+    reserve(point) {
+      if (!canReceive()) return false;
+      cancelToy();
+      ['sleep','yawn','expression','invite','notice','look','pet','rollHold'].forEach(key=>clearTimeout(timers[key]));
+      blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
+      headTaps=[];gentleClicks=[];mode='toy';cat.dataset.mode=mode;
+      trackYarn(point);
+      later('toyEnd',cancelToy,toyChainSettings.travelMs+toySettings.reactionMs);
+      return true;
+    },
+    available: (distance, joining = false) => !busy() && !pressing && state === 'awake',
+    react(point, distance, version, receivedPass = false) {
+      if (busy() || pressing) return;
+      if (state !== 'awake') return;
+      ['sleep', 'yawn', 'expression', 'invite', 'notice', 'look', 'pet', 'rollHold'].forEach(key => clearTimeout(timers[key]));
+      headTaps = []; gentleClicks = []; bouncing?.cancel(); heartAnimation?.cancel();
+      mode = 'toy'; cat.dataset.mode = mode;
+      const r = cat.getBoundingClientRect(), dx = point.x - r.left - r.width / 2, dy = point.y - r.top - 125;
+      const length = Math.hypot(dx, dy) || 1, direction = Math.sign(dx) || 1;
+      pupils.style.transform = `translate(${dx / length * cfg.eye}px, ${dy / length * cfg.eye * .65}px)`;
+      cat.style.setProperty('--tilt', `${direction * cfg.tilt * .35}deg`);
+      const shy = distance < toy.shyDistance;
+      if (shy) {
+        if (Math.random() < toy.startleSensitivity) { setState('surprised'); later('expression', () => setState('awake'), 450); }
+        if (!reducedMotion.matches) toyAnimation = bounce.animate([
+          { transform: 'translateX(0)' }, { transform: `translateX(${-direction * toy.lean}px)`, offset: .4 }, { transform: 'translateX(0)' }
+        ], { duration: 700, easing: 'ease-in-out' });
+      }
+      later('toyWatch', () => {
+        if (version !== toyVersion || mode !== 'toy' || yarnDrag || Math.random() >= (receivedPass ? toyChainBehavior[cat.id].receiveChance : toy.pawChance)) return;
+        if (!reducedMotion.matches) toyAnimation = bounce.animate([
+          { transform: 'translateX(0)' }, { transform: `translateX(${direction * toy.lean}px)`, offset: .5 }, { transform: 'translateX(0)' }
+        ], { duration: cfg.role === 'timid' ? 1100 : 600, easing: 'ease-in-out' });
+        tapYarn(version);
+
+      }, toy.watchMs);
+      later('toyEnd', cancelToy, toy.watchMs + toySettings.reactionMs);
+      return true;
+    }
+  });
   function later(name, fn, delay) {
     clearTimeout(timers[name]);
     timers[name] = setTimeout(fn, delay);
   }
   function setState(next) {
+    // Select once on entry, never reroll an ongoing sleep session.
+    if (next === 'asleep' && (state === 'asleep' || busy() || pressing)) return;
     clearTimeout(timers.expression);
     state = next;
     body.style.animationDuration = `${next === 'asleep' ? cfg.breathe * 1.5 : cfg.breathe}s`;
-    if (next === 'asleep') notify(cat, 'sleep');
+    if (next === 'asleep') {
+      headTaps = []; gentleClicks = []; clearTimeout(timers.invite);
+      ['look', 'notice', 'pet', 'rollHold', 'yawn'].forEach(key => clearTimeout(timers[key]));
+      bouncing?.cancel(); heartAnimation?.cancel();
+      sitting.style.opacity = ''; // Clear the completed roll's inline opacity before the sleep crossfade.
+      cat.dataset.sleepPose = chooseSleepPose(extra.sleepPoseWeights);
+      notify(cat, 'sleep');
+    } else delete cat.dataset.sleepPose;
     cat.dataset.state = next;
     blinking?.cancel();
     if (next === 'asleep' || next === 'yawning') {
@@ -466,21 +1614,26 @@
     }
   }
   function activity() {
-    if (rolling) return;
-    if (state === 'asleep' || state === 'yawning') setState('awake');
+    if (busy()) return;
+    if (state === 'asleep') {
+      setState('awake'); mode = 'waking'; cat.dataset.mode = mode;
+      later('wake', () => { mode = ''; delete cat.dataset.mode; activity(); }, extraSettings.settleMs);
+      return;
+    }
+    if (state === 'yawning') setState('awake');
     later('yawn', () => {
       if (pressing) return;
       setState('yawning');
       later('expression', () => setState('awake'), 1400);
     }, cfg.sleep - 3000);
-    later('sleep', () => { if (!pressing) setState('asleep'); }, cfg.sleep);
+    later('sleep', () => { if (!pressing && !busy()) setState('asleep'); }, cfg.sleep);
   }
   function ears(dx = 0, dy = 0) {
     outline.setAttribute('d', `M76 105 Q70 82 ${77+dx} ${60+dy} Q${80+dx} ${54+dy} ${85+dx} ${59+dy} L109 80 Q130 74 151 80 L${175+dx} ${59-dy} Q${181+dx} ${54-dy} ${183+dx} ${63-dy} Q189 86 183 106 C200 149 176 171 131 172 C86 172 61 150 76 105Z`);
     insides.setAttribute('d', `M${81+dx} ${69+dy} L98 84 L80 94Z M${178+dx} ${69-dy} L161 84 L180 94Z`);
   }
   function doBlink() {
-    if (!rolling && (state === 'awake' || state === 'surprised') && !reducedMotion.matches) {
+    if (!busy() && (state === 'awake' || state === 'surprised') && !reducedMotion.matches) {
       blinking?.cancel();
       blinking = blink.animate([
         { transform: 'scaleY(1)' },
@@ -493,12 +1646,16 @@
   cat.addEventListener('mouseenter', () => { hovered = true; activity(); doBlink(); });
   cat.addEventListener('mouseleave', () => { hovered = false; });
   function trackPointer(event) {
+    if (yarnDrag || event.target.closest?.('#yarn-ball')) return;
+    if (gesture && gesture.id === event.pointerId && pressing && !overHead(event)) { suppressClick = true; release(); }
     if (gesture && gesture.id === event.pointerId && Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > rollSettings.maxMovePx) {
-      gesture = null; suppressClick = true; clearTimeout(timers.rollHold); release();
+      gesture = null; headGesture = false; suppressClick = true; clearTimeout(timers.rollHold); release();
     }
-    if (rolling) return;
+    if (busy()) return;
+    if (state === 'asleep' && toyDistance(cat, { x: event.clientX, y: event.clientY }) > toySettings.wakeDistance) return; // Distant movement must not wake sleepers.
     if (event.pointerType === 'touch' && !gesture) return;
     activity();
+    if (busy()) return;
     const box = cat.getBoundingClientRect();
     const x = event.clientX - (box.left + box.width / 2);
     const y = event.clientY - (box.top + box.height * .43);
@@ -523,6 +1680,58 @@
     if (pressing && !overHead(event)) release();
   }
   document.addEventListener('pointermove', trackPointer);
+  const pet = pettingBehavior[cat.id];
+  let petTouches = [], petMotion;
+  cat.style.setProperty('--pet-purr', `${pet.purrIntensity}px`);
+  cat.style.setProperty('--pet-lower', `${pet.headLower}px`);
+  cat.style.setProperty('--pet-happy', pet.happyOpacity);
+  function endPetting() {
+    if (mode !== 'petting') return;
+    ['petRelax', 'petEnd', 'petHeart', 'petPlay', 'petResume'].forEach(key => clearTimeout(timers[key]));
+    petMotion?.cancel(); petMotion = null; heartAnimation?.cancel();
+    delete cat.dataset.petting; gesture = null; pressing = false; headGesture = false;
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    setState('awake'); mode = 'pet-settling'; cat.dataset.mode = mode;
+    later('petSettle', () => { mode = ''; delete cat.dataset.mode; activity(); later('blink', doBlink, cfg.blink); }, pettingSettings.settleMs);
+  }
+  function startPetting() {
+    if (!gesture || !pressing || busy() || state === 'asleep' || state === 'yawning') return;
+    ['sleep', 'yawn', 'expression', 'invite', 'notice', 'look', 'rollHold'].forEach(key => clearTimeout(timers[key]));
+    blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
+    headTaps = []; gentleClicks = []; headGesture = false; lastTap = 0; suppressClick = true;
+    setState('awake'); mode = 'petting'; cat.dataset.mode = mode; cat.dataset.petting = 'cautious';
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    const repeated = petTouches.length > 1;
+    const declines = (repeated && Math.random() > pet.pettingTolerance) || Math.random() < pet.watchChance;
+    if (Math.random() < pet.flinchChance && !reducedMotion.matches) {
+      petMotion = bounce.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-1.5px)', offset: .3 }, { transform: 'translateY(0)' }], { duration: 380, easing: 'ease-out' });
+    }
+    if (declines) {
+      cat.dataset.petting = 'watching';
+      later('petEnd', endPetting, 850);
+      return;
+    }
+    later('petRelax', () => {
+      if (mode !== 'petting' || !pressing) return;
+      petMotion?.cancel(); cat.dataset.petting = 'relaxed'; ears(0, .8);
+      later('petHeart', () => {
+        if (mode !== 'petting' || !pressing || Math.random() >= pet.affectionChance) return;
+        heartAnimation = cat.querySelector('.heart').animate([
+          { opacity: 0, transform: 'scale(.45)' }, { opacity: .65, transform: 'scale(.55)', offset: .4 },
+          { opacity: 0, transform: `translateY(${reducedMotion.matches ? 0 : -8}px) scale(.5)` }
+        ], { duration: 1100, easing: 'ease-out' });
+      }, pettingSettings.heartAfterMs);
+      if (cfg.role === 'curious' && Math.random() < pettingSettings.playfulChance) {
+        later('petPlay', () => {
+          if (mode !== 'petting' || !pressing) return;
+          // A brief mischievous glance keeps the original paws and markings intact.
+          cat.dataset.petting = 'playful'; cat.style.setProperty('--tilt', '-2deg');
+          later('petResume', () => { if (mode === 'petting' && pressing) { cat.dataset.petting = 'relaxed'; cat.style.setProperty('--tilt', '0deg'); } }, 450);
+        }, 1500);
+      }
+    }, pet.relaxDelay);
+    later('petEnd', endPetting, pet.pettingDuration);
+  }
   function overHead(event) {
     const head = cat.querySelector('.head').getBoundingClientRect();
     return event.clientX >= head.left && event.clientX <= head.right &&
@@ -530,21 +1739,27 @@
   }
   let touchInput = false, lastTap = 0, tapStart = null;
   cat.addEventListener('pointerdown', event => {
-    if (event.button !== 0 || !event.isPrimary || rolling) return;
+    if (event.button !== 0 || !event.isPrimary || busy()) return;
     touchInput = event.pointerType === 'touch';
     tapStart = touchInput ? { x: event.clientX, y: event.clientY } : null;
     suppressClick = false;
     const wasSleeping = state === 'asleep' || state === 'yawning';
+    wokeOnPress = wasSleeping;
+    headGesture = !wasSleeping && overHead(event);
     activity();
+    if (busy()) return;
     gesture = { id: event.pointerId, x: event.clientX, y: event.clientY };
     if (touchInput) { hovered = true; trackPointer(event); doBlink(); }
-    if (!wasSleeping) later('rollHold', () => { if (gesture) { suppressClick = true; inviteRoll(); } }, rollSettings.holdMs);
-    if (!overHead(event)) return;
+    if (!wasSleeping && !headGesture) later('rollHold', () => { if (gesture) { suppressClick = true; inviteRoll(); } }, rollSettings.holdMs);
+    if (!headGesture) return;
+    petTouches = petTouches.filter(time => Date.now() - time < pettingSettings.repeatWindowMs);
+    petTouches.push(Date.now());
     pressing = true;
-    later('pet', () => { suppressClick = true; bouncing?.cancel(); setState('happy'); }, 450);
+    later('pet', startPetting, pettingSettings.holdMs);
   });
   function release() {
     gesture = null; clearTimeout(timers.rollHold);
+    if (mode === 'petting') { endPetting(); return; }
     if (!pressing) return;
     pressing = false;
     clearTimeout(timers.pet);
@@ -553,6 +1768,7 @@
   }
   document.addEventListener('pointerup', release);
   document.addEventListener('pointercancel', () => {
+    headGesture = false; headTaps = []; clearTimeout(timers.invite);
     if (touchInput) { suppressClick = true; lastTap = 0; tapStart = null; hovered = false; }
     release();
   });
@@ -563,10 +1779,24 @@
     }
   });
   window.addEventListener('blur', release);
+  window.addEventListener('scroll', release, { passive: true });
+  window.addEventListener('resize', release);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) release(); });
   cat.addEventListener('contextmenu', event => event.preventDefault());
-  cat.addEventListener('click', () => {
-    if (rolling || suppressClick) { lastTap = 0; return; }
-    const wasSleeping = state === 'asleep' || state === 'yawning';
+  cat.addEventListener('click', event => {
+    if (state === 'asleep') { activity(); return; }
+    if (busy() || suppressClick) { lastTap = 0; return; }
+    const wasSleeping = wokeOnPress || state === 'asleep' || state === 'yawning';
+    wokeOnPress = false;
+    const headClick = headGesture && overHead(event);
+    headGesture = false;
+    if (!wasSleeping && headClick && extra.canStand) {
+      const now = Date.now();
+      headTaps = headTaps.filter(t => now - t < extraSettings.headTapWindowMs);
+      headTaps.push(now);
+      clearTimeout(timers.invite);
+      if (headTaps.length >= extraSettings.headTapsRequired) { startExtra('standing'); return; }
+    } else headTaps = [];
     if (!wasSleeping) {
       character.trust = Math.min(1, character.trust + (cfg.role === 'timid' ? .015 : .005));
       gentleClicks = gentleClicks.filter(t => Date.now() - t < rollSettings.clickWindowMs);
@@ -574,7 +1804,11 @@
     }
     if (touchInput) {
       const now = Date.now();
-      if (lastTap && now - lastTap < 350) { lastTap = 0; affection(); return; }
+      if (lastTap && now - lastTap < 350) {
+        lastTap = 0; affection();
+        if (gentleClicks.length >= 3) later('invite', inviteInteraction, headTaps.length ? Math.max(380, extraSettings.headTapWindowMs - (now - headTaps[0]) + 1) : 380);
+        return;
+      }
       lastTap = now;
     }
     activity();
@@ -582,14 +1816,19 @@
     motion();
     notify(cat, 'click');
     if (!wasSleeping) {
-      if (gentleClicks.length >= rollSettings.clicks) later('invite', inviteRoll, 380);
+      if (gentleClicks.length >= Math.min(rollSettings.clicks, extraSettings.groomingClicksRequired)) {
+        // Give a head-click sequence its full window before choosing a random action.
+        const delay = headTaps.length ? Math.max(380, extraSettings.headTapWindowMs - (Date.now() - headTaps[0]) + 1) : 380;
+        later('invite', inviteInteraction, delay);
+      }
     }
     later('expression', () => setState('awake'), cfg.role === 'timid' ? 550 : 850);
   });
   cat.addEventListener('dblclick', () => { if (!touchInput) affection(); });
   function affection() {
-    if (rolling || suppressClick) return;
-    clearTimeout(timers.invite);
+    if (state === 'asleep') { activity(); return; }
+    if (busy() || suppressClick) return;
+    if (gentleClicks.length < 3) clearTimeout(timers.invite);
     activity();
     setState('awake');
     bouncing?.cancel();
@@ -600,8 +1839,29 @@
       { opacity: 0, transform: `translateY(${reducedMotion.matches ? 0 : -25}px) scale(1)` }
     ], { duration: 1400, easing: 'ease-out' });
   }
+  function startExtra(next) {
+    if (busy() || state === 'asleep' || state === 'yawning' || (next === 'standing' && !extra.canStand)) return;
+    Object.values(timers).forEach(clearTimeout);
+    blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
+    headTaps = []; gentleClicks = []; gesture = null; headGesture = false; pressing = false;
+    setState(next === 'grooming' ? 'happy' : 'awake');
+    pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
+    mode = next; cat.dataset.mode = next;
+    later('extra', () => {
+      cat.dataset.mode = 'settling'; mode = 'settling';
+      later('extra', () => {
+        mode = ''; delete cat.dataset.mode; setState('awake'); activity(); later('blink', doBlink, cfg.blink);
+      }, extraSettings.settleMs);
+    }, next === 'standing' ? extraSettings.standDuration : extraSettings.groomingDuration);
+  }
+  function inviteInteraction() {
+    if (busy() || pressing || state === 'asleep' || state === 'yawning') return;
+    headTaps = [];
+    if (gentleClicks.length >= extraSettings.groomingClicksRequired && Math.random() < extra.groomingChance) startExtra('grooming');
+    else if (gentleClicks.length >= rollSettings.clicks) inviteRoll();
+  }
   function inviteRoll() {
-    if (rolling || state === 'asleep' || state === 'yawning' || Date.now() < rollCooldown) return;
+    if (busy() || state === 'asleep' || state === 'yawning' || Date.now() < rollCooldown) return;
     gentleClicks = [];
     character.interactionCount++;
     character.trust = Math.min(1, character.trust + (cfg.role === 'timid' ? .09 : .04));
@@ -615,9 +1875,11 @@
     roll();
   }
   async function roll() {
+    if (busy() || state === 'asleep' || state === 'yawning') return;
+    headTaps = [];
     rolling = true;
     cat.dataset.rolling = 'true';
-    pressing = false; gesture = null; suppressClick = true;
+    pressing = false; gesture = null; headGesture = false; suppressClick = true;
     Object.values(timers).forEach(clearTimeout);
     blinking?.cancel(); bouncing?.cancel(); heartAnimation?.cancel();
     setState('awake'); ears(); pupils.style.transform = 'translate(0, 0)';
@@ -664,4 +1926,3 @@
   document.querySelectorAll('.cats > button').forEach(initCat);
 </script>
 </html>
-
