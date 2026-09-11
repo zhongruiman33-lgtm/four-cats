@@ -91,7 +91,7 @@
   }
 
   /* One small toy, outside the layout and all existing cat artwork. */
-  #yarn-ball { position: absolute; width: 34px; height: 34px; pointer-events: none; z-index: 2; transform: translate(-50%, -50%); }
+  #yarn-ball { position: fixed; width: 34px; height: 34px; pointer-events: auto; touch-action: none; cursor: grab; z-index: 2; transform: translate(-50%, -50%); }
   #yarn-ball[hidden] { display: none; }
   [data-mode="toy"] .cat { animation-play-state: paused; }
   /* Petting reuses the sitting face; no extra cat artwork. */
@@ -107,6 +107,10 @@
     [data-petting] > svg:first-child .bounce { animation: none; }
     [data-petting] > svg:first-child .head, [data-petting] > svg:first-child .eyes, [data-petting] > svg:first-child .happy-eyes { transition-duration: .01s; }
   }
+  #yarn-ball:active { cursor: grabbing; }
+  #yarn-ball:focus-visible { outline: 1px solid #b9ac99; outline-offset: 4px; border-radius: 50%; }
+  button > .toy-paw-detail { pointer-events: none; opacity: 0; transition: opacity .15s; }
+  [data-toy-paw] > .toy-paw-detail { opacity: 1; }
 </style>
 <main class="cats" aria-label="Four cats">
 <!-- Cat 1: locked original artwork. -->
@@ -1177,7 +1181,7 @@
         </g></g></g></svg>
 </button>
 </main>
-<svg id="yarn-ball" viewBox="0 0 40 40" aria-hidden="true" hidden>
+<svg id="yarn-ball" viewBox="0 0 40 40" role="button" tabindex="0" aria-label="Yarn ball. Tap to roll or drag to move." hidden>
   <ellipse cx="20" cy="35" rx="13" ry="2.5" fill="#b6a898" opacity=".16"/>
   <circle cx="19" cy="19" r="14" fill="#cfaca0" stroke="#b68e82" stroke-width=".9"/>
   <g fill="none" stroke="#f0d5c9" stroke-width="1.1" stroke-linecap="round">
@@ -1219,12 +1223,12 @@
   }
   // Toy distances are CSS pixels from the visible sitting body, chances are 0–1.
   const toyBehavior = {
-    cat:     { radius: 145, watchMs: 950, touchChance: .12, shyDistance: 65, lean: 2, nudge: 3, initiative: .25, startleChance: .8 },
-    'cat-2': { radius: 210, watchMs: 1400, touchChance: .08, shyDistance: 55, lean: 1.5, nudge: 2, initiative: .12, startleChance: .12 },
-    'cat-3': { radius: 190, watchMs: 240, touchChance: .85, shyDistance: 0, lean: 3, nudge: 5, initiative: 1.5, startleChance: 0 },
-    'cat-4': { radius: 210, watchMs: 90, touchChance: .94, shyDistance: 0, lean: 4, nudge: 7, initiative: 2.5, startleChance: 0 }
+    cat:     { radius: 145, watchMs: 950, pawChance: .12, shyDistance: 65, lean: 2, nudge: 3, toyInterest: .25, startleSensitivity: .95, joinChance: .05, doubleTapChance: 0 },
+    'cat-2': { radius: 210, watchMs: 1400, pawChance: .08, shyDistance: 55, lean: 1.5, nudge: 2, toyInterest: .12, startleSensitivity: .12, joinChance: .08, doubleTapChance: 0 },
+    'cat-3': { radius: 190, watchMs: 240, pawChance: .95, shyDistance: 0, lean: 3, nudge: 5, toyInterest: 1.5, startleSensitivity: 0, joinChance: .95, doubleTapChance: .1 },
+    'cat-4': { radius: 210, watchMs: 90, pawChance: 1, shyDistance: 0, lean: 4, nudge: 7, toyInterest: 2.5, startleSensitivity: 0, joinChance: .95, doubleTapChance: .65 }
   };
-  const toySettings = { wakeDistance: 35, reachDistance: 48, maxMovePx: 10, tapMs: 500, reactionMs: 1400 };
+  const toySettings = { wakeDistance: 35, reachDistance: 60, rollPx: 55, dragAttentionMs: 220, maxMovePx: 10, tapMs: 500, reactionMs: 1400 };
   // Only one social observer; only the close playful pair may share a toy turn.
   const socialBehavior = {
     cat: { noticeChance: .28, responseMs: 280, nervousChance: .65 },
@@ -1246,18 +1250,71 @@
   const toyCats = [];
   let toyJoinTimer;
   const yarn = document.querySelector('#yarn-ball');
-  let yarnPoint = null, yarnGesture = null, toyVersion = 0;
+  let yarnPoint = null, yarnGesture = null, toyVersion = 0, yarnDrag = null, ballAnimation, lastDragAttention = -Infinity;
   function toyDistance(cat, point) {
     const r = cat.getBoundingClientRect();
     // Ignore transparent margins, measuring from the existing visible body envelope.
     return Math.hypot(Math.max(r.left + 65 - point.x, 0, point.x - r.left - 200),
       Math.max(r.top + 60 - point.y, 0, point.y - r.top - 250));
   }
-  function positionYarn(point) {
-    yarn.style.left = `${point.x + window.scrollX}px`;
-    yarn.style.top = `${point.y + window.scrollY}px`;
+  function clampYarn(point) {
+    const width=document.documentElement?.clientWidth || window.innerWidth, height=document.documentElement?.clientHeight || window.innerHeight;
+    return { x: Math.max(20, Math.min(width - 20, point.x)), y: Math.max(20, Math.min(height - 20, point.y)) };
   }
+  function positionYarn(point) {
+    yarn.style.left = `${point.x}px`; yarn.style.top = `${point.y}px`;
+  }
+  function moveYarn(point, animate = false) {
+    const old = yarnPoint; yarnPoint = clampYarn(point); ballAnimation?.cancel();
+    positionYarn(yarnPoint); yarn.removeAttribute('hidden');
+    if (animate && old && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      ballAnimation = yarn.animate([
+        { transform: `translate(calc(-50% + ${old.x-yarnPoint.x}px), calc(-50% + ${old.y-yarnPoint.y}px)) rotate(-35deg)` },
+        { transform: 'translate(-50%, calc(-50% - 2px)) rotate(-8deg)', offset: .7 },
+        { transform: 'translate(-50%, -50%) rotate(0deg)' }
+      ], { duration: 420, easing: 'ease-out' });
+    }
+  }
+  function cancelToyTurn() {
+    ++toyVersion; clearTimeout(toyJoinTimer); toyCats.forEach(c => c.cancel());
+  }
+  function rollYarn() {
+    if (!yarnPoint) return;
+    const direction = yarnPoint.x > window.innerWidth - 90 ? -1 : 1;
+    moveYarn({ x: yarnPoint.x + direction * toySettings.rollPx, y: yarnPoint.y }, true);
+    placeYarn(yarnPoint);
+  }
+  yarn.addEventListener('pointerdown', event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    event.preventDefault(); event.stopPropagation(); cancelToyTurn(); ballAnimation?.cancel();
+    yarnDrag = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: yarnPoint.x-event.clientX, dy: yarnPoint.y-event.clientY, moved: false };
+    yarn.setPointerCapture(event.pointerId);
+  });
+  yarn.addEventListener('pointermove', event => {
+    if (!yarnDrag || yarnDrag.id !== event.pointerId) return;
+    event.preventDefault(); event.stopPropagation();
+    if (Math.hypot(event.clientX-yarnDrag.x,event.clientY-yarnDrag.y)>4) yarnDrag.moved=true;
+    if (!yarnDrag.moved) return;
+    moveYarn({x:event.clientX+yarnDrag.dx,y:event.clientY+yarnDrag.dy});
+    if (performance.now()-lastDragAttention > toySettings.dragAttentionMs) { lastDragAttention=performance.now(); placeYarn(yarnPoint); }
+    toyCats.forEach(c=>c.track(yarnPoint));
+  });
+  yarn.addEventListener('pointerup', event => {
+    if (!yarnDrag || yarnDrag.id !== event.pointerId) return;
+    event.preventDefault(); event.stopPropagation();
+    const dragged=yarnDrag.moved; yarnDrag=null;
+    if (yarn.hasPointerCapture(event.pointerId)) yarn.releasePointerCapture(event.pointerId);
+    if (dragged) placeYarn(yarnPoint); else rollYarn();
+  });
+  function cancelYarnDrag() { if (yarnDrag) { const id=yarnDrag.id; yarnDrag=null; if (yarn.hasPointerCapture(id)) yarn.releasePointerCapture(id); cancelToyTurn(); } }
+  yarn.addEventListener('pointercancel', cancelYarnDrag);
+  yarn.addEventListener('lostpointercapture', cancelYarnDrag);
+  yarn.addEventListener('keydown', event => { if (event.key==='Enter'||event.key===' ') { event.preventDefault(); rollYarn(); } });
+  yarn.addEventListener('contextmenu', event=>event.preventDefault());
+  window.addEventListener('blur', cancelYarnDrag);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelYarnDrag();});
   function placeYarn(point) {
+    point = clampYarn(point);
     const version = ++toyVersion;
     toyCats.forEach(c => c.cancel());
     yarnPoint = point; yarn.removeAttribute('hidden'); positionYarn(point);
@@ -1265,12 +1322,12 @@
     const candidates = toyCats.map(c => ({ c, distance: toyDistance(c.cat, point) }))
       .filter(({c, distance}) => distance <= c.settings.radius && c.available(distance));
     // Proximity still matters; boldness decides who leads when several cats can see it.
-    const weighted = candidates.map(n => ({ ...n, weight: n.c.settings.initiative / (1 + n.distance / 70) }));
+    const weighted = candidates.map(n => ({ ...n, weight: n.c.settings.toyInterest / (1 + n.distance / 70) }));
     let pick = Math.random() * weighted.reduce((sum, n) => sum + n.weight, 0);
     const leader = weighted.find(n => (pick -= n.weight) < 0) || weighted[weighted.length - 1];
     if (!leader || !leader.c.react(point, leader.distance, version)) return;
     const partner = candidates.find(n => n.c.cat.id === closePair[leader.c.cat.id]);
-    if (!partner || Math.random() >= socialSettings.pairJoinChance) return;
+    if (!partner || Math.random() >= partner.c.settings.joinChance) return;
     const a = leader.c.cat.getBoundingClientRect(), b = partner.c.cat.getBoundingClientRect();
     if (Math.hypot(a.left - b.left, a.top - b.top) > socialSettings.pairDistance) return;
     toyJoinTimer = setTimeout(() => {
@@ -1279,7 +1336,7 @@
     }, socialSettings.joinDelayMs);
 
   }
-  const emptyToyTarget = target => !target.closest('button, a, input, textarea, select, [contenteditable]');
+  const emptyToyTarget = target => !target.closest('#yarn-ball, button, a, input, textarea, select, [contenteditable]');
   document.addEventListener('pointerdown', event => {
     if (!event.isPrimary || event.button !== 0 || !emptyToyTarget(event.target)) { yarnGesture = null; return; }
     yarnGesture = { id: event.pointerId, x: event.clientX, y: event.clientY, time: performance.now() };
@@ -1288,14 +1345,13 @@
     if (yarnGesture && event.pointerId === yarnGesture.id && Math.hypot(event.clientX - yarnGesture.x, event.clientY - yarnGesture.y) > toySettings.maxMovePx) yarnGesture = null;
   });
   document.addEventListener('pointercancel', () => { yarnGesture = null; });
-  window.addEventListener('scroll', () => { yarnGesture = null; }, { passive: true });
+  window.addEventListener('scroll', () => { yarnGesture = null; cancelYarnDrag(); cancelToyTurn(); }, { passive: true });
   document.addEventListener('pointerup', event => {
     const press = yarnGesture; yarnGesture = null;
     if (!press || event.pointerId !== press.id || !emptyToyTarget(event.target) || performance.now() - press.time > toySettings.tapMs || Math.hypot(event.clientX - press.x, event.clientY - press.y) > toySettings.maxMovePx) return;
     placeYarn({ x: Math.max(18, Math.min(window.innerWidth - 18, event.clientX)), y: Math.max(18, event.clientY) });
   });
-  // A resized viewport may invalidate proximity; dismiss until the next placement.
-  window.addEventListener('resize', () => { ++toyVersion; clearTimeout(toyJoinTimer); toyCats.forEach(c => c.cancel()); yarn.setAttribute('hidden', ''); yarnPoint = null; });
+  window.addEventListener('resize', () => { cancelYarnDrag(); cancelToyTurn(); if (yarnPoint) moveYarn(yarnPoint); });
   const companions = [];
   let lastNotice = -Infinity;
   function notify(source, kind) {
@@ -1382,9 +1438,45 @@
     }, social.responseMs);
   } });
   const toy = toyBehavior[cat.id];
-  let toyAnimation;
+  let toyAnimation, pawAnimation;
+  const paw = document.createElementNS(ns, 'svg');
+  paw.setAttribute('class', 'toy-paw-detail'); paw.setAttribute('viewBox', '0 0 260 290'); paw.setAttribute('aria-hidden', 'true');
+  const pawColors = { cat: ['#c39764','#826d53'], 'cat-2': ['#fffefa','#e3ddd4'], 'cat-3': ['#aa9573','#82715a'], 'cat-4': ['#8f8470','#625b4f'] };
+  const [pawFill,pawStroke]=pawColors[cat.id];
+  paw.innerHTML = `<g fill="${pawFill}" stroke="${pawStroke}" stroke-width="1.2"><path d="M-7 -19 Q0 -24 7 -19 L10 -2 Q12 7 0 8 Q-12 7 -10 -2Z"/><path d="M-4 2 v3 M1 2 v3" fill="none" opacity=".6"/></g>`;
+  cat.append(paw);
+  function trackYarn(point) {
+    if (mode !== 'toy') return;
+    const r=cat.getBoundingClientRect(), dx=point.x-r.left-r.width/2, dy=point.y-r.top-125, length=Math.hypot(dx,dy)||1;
+    pupils.style.transform=`translate(${dx/length*cfg.eye}px, ${dy/length*cfg.eye*.65}px)`;
+    cat.style.setProperty('--tilt', `${Math.sign(dx)*cfg.tilt*.35}deg`);
+  }
+  function tapYarn(version, again = false) {
+    if (version!==toyVersion || mode!=='toy' || state!=='awake' || yarnDrag || !yarnPoint) return;
+    const r=cat.getBoundingClientRect(), direction=Math.sign(yarnPoint.x-r.left-130)||1;
+    const origin={x:r.left+130+direction*24,y:r.top+240};
+    const dx=yarnPoint.x-origin.x, dy=yarnPoint.y-origin.y, distance=Math.hypot(dx,dy)||1;
+    if (distance>toySettings.reachDistance || Math.abs(dy)>65) return;
+    const reach=Math.min(34, Math.max(6,distance-23));
+    const g=paw.querySelector('g'); g.setAttribute('transform',`translate(${origin.x-r.left} ${origin.y-r.top})`);
+    cat.dataset.toyPaw='true'; pawAnimation?.cancel();
+    if (!reducedMotion.matches) pawAnimation=g.animate([
+      {transform:`translate(${origin.x-r.left}px, ${origin.y-r.top}px)`},
+      {transform:`translate(${origin.x-r.left+dx/distance*reach}px, ${origin.y-r.top+dy/distance*reach}px) rotate(${direction*8}deg)`,offset:.5},
+      {transform:`translate(${origin.x-r.left}px, ${origin.y-r.top}px)`}
+    ],{duration:420,easing:'ease-in-out'});
+    later('pawHit',()=>{
+      if(version!==toyVersion||mode!=='toy'||yarnDrag||!yarnPoint)return;
+      moveYarn({x:yarnPoint.x+dx/distance*(toy.nudge+8),y:yarnPoint.y+dy/distance*(toy.nudge+8)},true);
+      toyCats.forEach(c=>c.track(yarnPoint));
+    },180);
+    later('pawHide',()=>{delete cat.dataset.toyPaw;pawAnimation?.cancel();},430);
+    if(!again && Math.random()<toy.doubleTapChance)later('pawAgain',()=>tapYarn(version,true),600);
+  }
   function cancelToy() {
     clearTimeout(timers.toyWatch); clearTimeout(timers.toyEnd);
+    ['pawHit','pawHide','pawAgain'].forEach(key=>clearTimeout(timers[key]));
+    delete cat.dataset.toyPaw; pawAnimation?.cancel();
     toyAnimation?.cancel(); toyAnimation = null;
     if (mode !== 'toy') return;
     mode = ''; delete cat.dataset.mode;
@@ -1392,11 +1484,10 @@
     pupils.style.transform = 'translate(0px, 0px)'; ears(); cat.style.setProperty('--tilt', '0deg');
     activity();
   }
-  toyCats.push({ cat, settings: toy, cancel: cancelToy,
-    available: (distance, joining = false) => !busy() && !pressing && (state === 'awake' || (!joining && state === 'asleep' && distance <= toySettings.wakeDistance)),
+  toyCats.push({ cat, settings: toy, cancel: cancelToy, track: trackYarn,
+    available: (distance, joining = false) => !busy() && !pressing && state === 'awake',
     react(point, distance, version) {
       if (busy() || pressing) return;
-      if (state === 'asleep') { activity(); return; } // Close placement only wakes; no immediate play.
       if (state !== 'awake') return;
       ['sleep', 'yawn', 'expression', 'invite', 'notice', 'look', 'pet', 'rollHold'].forEach(key => clearTimeout(timers[key]));
       headTaps = []; gentleClicks = []; bouncing?.cancel(); heartAnimation?.cancel();
@@ -1407,22 +1498,18 @@
       cat.style.setProperty('--tilt', `${direction * cfg.tilt * .35}deg`);
       const shy = distance < toy.shyDistance;
       if (shy) {
-        if (Math.random() < toy.startleChance) { setState('surprised'); later('expression', () => setState('awake'), 450); }
+        if (Math.random() < toy.startleSensitivity) { setState('surprised'); later('expression', () => setState('awake'), 450); }
         if (!reducedMotion.matches) toyAnimation = bounce.animate([
           { transform: 'translateX(0)' }, { transform: `translateX(${-direction * toy.lean}px)`, offset: .4 }, { transform: 'translateX(0)' }
         ], { duration: 700, easing: 'ease-in-out' });
       }
       later('toyWatch', () => {
-        if (version !== toyVersion || mode !== 'toy' || shy || Math.random() >= toy.touchChance) return;
+        if (version !== toyVersion || mode !== 'toy' || yarnDrag || Math.random() >= toy.pawChance) return;
         if (!reducedMotion.matches) toyAnimation = bounce.animate([
           { transform: 'translateX(0)' }, { transform: `translateX(${direction * toy.lean}px)`, offset: .5 }, { transform: 'translateX(0)' }
         ], { duration: cfg.role === 'timid' ? 1100 : 600, easing: 'ease-in-out' });
-        // No remote hits: only a ball close enough to reach gets a tiny nudge.
-        if (distance <= toySettings.reachDistance) {
-          const move = Math.max(18, Math.min(window.innerWidth - 18, point.x + direction * toy.nudge));
-          yarnPoint = { x: move, y: point.y }; positionYarn(yarnPoint);
-          if (!reducedMotion.matches) yarn.animate([{ transform: `translate(calc(-50% + ${point.x - move}px), -50%) rotate(-8deg)` }, { transform: 'translate(-50%, -50%) rotate(0deg)' }], { duration: 380, easing: 'ease-out' });
-        }
+        tapYarn(version);
+
       }, toy.watchMs);
       later('toyEnd', cancelToy, toy.watchMs + toySettings.reactionMs);
       return true;
@@ -1486,6 +1573,7 @@
   cat.addEventListener('mouseenter', () => { hovered = true; activity(); doBlink(); });
   cat.addEventListener('mouseleave', () => { hovered = false; });
   function trackPointer(event) {
+    if (yarnDrag || event.target.closest?.('#yarn-ball')) return;
     if (gesture && gesture.id === event.pointerId && pressing && !overHead(event)) { suppressClick = true; release(); }
     if (gesture && gesture.id === event.pointerId && Math.hypot(event.clientX - gesture.x, event.clientY - gesture.y) > rollSettings.maxMovePx) {
       gesture = null; headGesture = false; suppressClick = true; clearTimeout(timers.rollHold); release();
